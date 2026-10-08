@@ -72,3 +72,5 @@ La comunidad, colaboración, editor de misiones y reportes pertenecen a ampliaci
 ## Referencia visual de octubre de 2026
 
 Portada inspirada en la imagen aportada por el usuario: campus lacustre realista, luces violeta, título lima y tarjetas fotográficas. Las cuatro ilustraciones fueron generadas para TP PLAY; son escenas ficticias, sin respaldo institucional. Los archivos WebP se sirven localmente, con variante de portada para pantallas pequeñas y carga diferida en las tarjetas. La interfaz y sus botones son HTML funcional. El progreso sigue calculándose desde los intentos del navegador.
+
+La portada se ajustó a una interpretación de la Región de Los Lagos: lago Llanquihue, cono nevado del volcán Osorno, laderas boscosas y detalles de madera. El campus sigue siendo ficticio.
