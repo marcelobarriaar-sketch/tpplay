@@ -1,6 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { areas, missions, resources } from '../src/data';
+import { areas, missions, resources } from '../src/data.js';
 const cookieName = 'tpplay_admin';
 const attempts = new Map<string, { count: number; until: number }>();
 export function verifyPassword(password: string, encoded: string) {
