@@ -1,1 +1,80 @@
-{"rewrites":[{"source":"/((?!api/|assets/|images/|favicon.svg).*)","destination":"/index.html"}]}
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/especialidades",
+      "destination": "/especialidades/index.html"
+    },
+    {
+      "source": "/desafios",
+      "destination": "/desafios/index.html"
+    },
+    {
+      "source": "/recursos",
+      "destination": "/recursos/index.html"
+    },
+    {
+      "source": "/como-funciona",
+      "destination": "/como-funciona/index.html"
+    },
+    {
+      "source": "/docente",
+      "destination": "/docente/index.html"
+    },
+    {
+      "source": "/ayuda",
+      "destination": "/ayuda/index.html"
+    },
+    {
+      "source": "/especialidades/administracion",
+      "destination": "/especialidades/administracion/index.html"
+    },
+    {
+      "source": "/especialidades/agropecuaria",
+      "destination": "/especialidades/agropecuaria/index.html"
+    },
+    {
+      "source": "/especialidades/parvulos",
+      "destination": "/especialidades/parvulos/index.html"
+    },
+    {
+      "source": "/desafios/mision-iva",
+      "destination": "/desafios/mision-iva/index.html"
+    },
+    {
+      "source": "/desafios/rescate-invernadero",
+      "destination": "/desafios/rescate-invernadero/index.html"
+    },
+    {
+      "source": "/desafios/primera-entrevista",
+      "destination": "/desafios/primera-entrevista/index.html"
+    },
+    {
+      "source": "/recursos/iva-sii",
+      "destination": "/recursos/iva-sii/index.html"
+    },
+    {
+      "source": "/recursos/programas-tp",
+      "destination": "/recursos/programas-tp/index.html"
+    },
+    {
+      "source": "/recursos/programa-administracion",
+      "destination": "/recursos/programa-administracion/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria",
+      "destination": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria/index.html"
+    },
+    {
+      "source": "/especialidades/agropecuaria/modulos/produccion-vegetal",
+      "destination": "/especialidades/agropecuaria/modulos/produccion-vegetal/index.html"
+    },
+    {
+      "source": "/((?!api/|assets/|images/|favicon.svg|robots.txt|sitemap.xml).*)",
+      "destination": "/app.html"
+    }
+  ]
+}
