@@ -1,5 +1,5 @@
-import {allChallenges,allItems,contentVersion,missions,concepts,type Challenge,type ConceptId} from './content';
-import {avatars} from './world';
+import {allChallenges,allItems,contentVersion,missions,concepts,type Challenge,type ConceptId} from './content.js';
+import {avatars} from './world.js';
 export const storageKey='tpplay.coihue.tributos.v1';
 export type Answer={value:string;attempts:number;correct:boolean;assisted:boolean};
 export type Progress={version:1;contentVersion:number;started:boolean;avatar:string;nickname:string;visited:string[];active:string|null;phase:'intro'|'play';answers:Record<string,Answer>;hints:string[];advanced:string[]};
