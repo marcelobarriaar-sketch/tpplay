@@ -41,3 +41,8 @@ Requiere pilotaje docente para calibrar la duración orientativa de 25–35 minu
 Ejecutar `pnpm seo:routes`, `pnpm build` y `pnpm test`. Las pruebas cubren integridad del contenido, avance de las siete misiones, ayuda y reintentos, aprendizaje independiente, completar con errores sin conceder dominio, y recuperación de almacenamiento. Las pruebas previas de autenticación, progreso y SEO también se mantienen.
 
 Revisión en navegador: recorrido desde avatar/apodo hasta las siete insignias y reconocimiento; errores de clasificación y orden, glosario y regreso, casos nuevos tras ayuda, recarga y continuación, reinicio con conservar/confirmar, vista móvil, foco y teclado, integración en catálogo/módulo y portada original.
+
+
+## Actualización: cuentas escolares
+
+La nueva versión sustituye el guardado local de esta aventura por la integración Supabase descrita en `cuentas-valle-coihue.md`. Sin ese servicio configurado, el acceso está pendiente y no se habilita juego escolar ni se importan evidencias locales antiguas. Las referencias previas al pasaporte local describen la entrega anterior.

@@ -85,7 +85,7 @@ Para publicar en Vercel, configurar `ADMIN_USER`, `ADMIN_PASSWORD_HASH` y `ADMIN
 
 ## SEO y publicación de contenido
 
-La compilación genera 18 páginas públicas con HTML legible sin JavaScript, títulos y descripciones únicos, URL canónica en www.tpplay.cl, Open Graph y datos estructurados de WebSite, WebPage y proyecto editorial. Genera robots.txt y sitemap.xml, con exclusión de acceso administrativo, jugador, intentos y progreso personal mediante noindex en el HTML inicial.
+La compilación genera 19 páginas públicas con HTML legible sin JavaScript, títulos y descripciones únicos, URL canónica en www.tpplay.cl, Open Graph y datos estructurados de WebSite, WebPage y proyecto editorial. Genera robots.txt y sitemap.xml, con exclusión de acceso administrativo, jugador, intentos y progreso personal mediante noindex en el HTML inicial.
 
 Al agregar páginas indexables, actualizar src/seo.ts y ejecutar pnpm seo:routes para sincronizar las rutas de Vercel. Ejecutar pnpm build antes de pnpm test: las pruebas SEO verifican los artefactos publicados.
 
@@ -93,4 +93,8 @@ El SEO técnico facilita el rastreo; no garantiza indexación ni posiciones. Man
 
 ## Valle del Coihue: misión tributos
 
-Juego de inducción tributaria en `/juegos/mision-tributos`, accesible desde Desafíos y Gestión comercial y tributaria. Siete misiones en una ciudad compartida, con pasaporte local, glosario, actividades variadas y evaluación formativa independiente del avance. [Edición, fuentes y verificaciones](docs/valle-del-coihue.md). Esta entrega se prepara para revisión local, sin despliegue automático.
+Juego de inducción tributaria en `/juegos/mision-tributos`, accesible desde Desafíos y Gestión comercial y tributaria. Siete misiones en una ciudad compartida, con pasaporte asociado a la cuenta al activar Supabase, glosario, actividades variadas y evaluación formativa independiente del avance. [Edición, fuentes y verificaciones](docs/valle-del-coihue.md). Esta entrega se prepara para revisión local, sin despliegue automático.
+
+## Cuentas de Valle del Coihue y evaluación docente
+
+La bienvenida del inicio abre `/aventura`. La integración preparada usa Supabase Auth y PostgreSQL para cuentas verificadas, cursos por invitación, progreso, evidencias, rúbricas y gestión administrativa. **Falta configurar un proyecto Supabase real; el acceso lo indica y no simula registros.** Consultar [configuración del primer administrador, cursos y pruebas pendientes](docs/cuentas-valle-coihue.md). No se publica automáticamente.
