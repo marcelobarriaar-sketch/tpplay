@@ -7,6 +7,7 @@ import { Logo } from './ui';
 import { Player, Results, Missing } from './Player';
 import { Home, Catalog, MissionDetail, Specialties, Specialty, Library, ResourceDetail, Dashboard, LearningRoute, HowItWorks, Teacher, Access, Profile, Info } from './pages';
 import Admin from './Admin';
+import Seo from './Metadata';
 import './styles.css';
 
 class ErrorBoundary extends Component<{children:ReactNode},{failed:boolean}> {
@@ -22,9 +23,9 @@ function Header() {
 }
 function Layout() {
   const location=useLocation();const main=useRef<HTMLElement>(null);const {state,saveError,retry}=useDemo();const [online,setOnline]=useState(navigator.onLine);
-  useEffect(()=>{window.scrollTo(0,0);main.current?.focus({preventScroll:true});document.title=`TP PLAY — ${location.pathname==='/'?'Aprende jugando. Construye tu futuro.':location.pathname.startsWith('/desafios')?'Desafíos':location.pathname.startsWith('/mi-aprendizaje')?'Mi aprendizaje':'Explora el campus'}`;},[location.pathname]);
+  useEffect(()=>{window.scrollTo(0,0);main.current?.focus({preventScroll:true});},[location.pathname]);
   useEffect(()=>{const update=()=>setOnline(navigator.onLine);window.addEventListener('online',update);window.addEventListener('offline',update);return()=>{window.removeEventListener('online',update);window.removeEventListener('offline',update);};},[]);
-  return <div className={state.reducedMotion?'reduced-motion':''}><a className="skip-link" href="#contenido">Saltar al contenido</a><Header/>{!online&&<div className="status-banner" role="status"><WifiOff size={18}/><span>Estás sin conexión. Las misiones ya cargadas pueden continuar; los enlaces externos necesitan internet.</span><button className="text-button" onClick={()=>setOnline(navigator.onLine)}>Comprobar conexión</button></div>}{saveError&&<div className="status-banner" role="alert"><AlertCircle size={18}/><span>{saveError}</span><button className="button secondary" onClick={retry}>Reintentar guardado</button></div>}
+  return <div className={state.reducedMotion?'reduced-motion':''}><a className="skip-link" href="#contenido">Saltar al contenido</a><Seo/><Header/>{!online&&<div className="status-banner" role="status"><WifiOff size={18}/><span>Estás sin conexión. Las misiones ya cargadas pueden continuar; los enlaces externos necesitan internet.</span><button className="text-button" onClick={()=>setOnline(navigator.onLine)}>Comprobar conexión</button></div>}{saveError&&<div className="status-banner" role="alert"><AlertCircle size={18}/><span>{saveError}</span><button className="button secondary" onClick={retry}>Reintentar guardado</button></div>}
     <main id="contenido" ref={main} tabIndex={-1} className="container"><Routes>
       <Route path="/" element={<Home/>}/><Route path="/especialidades" element={<Specialties/>}/><Route path="/especialidades/:slug" element={<Specialty/>}/><Route path="/especialidades/:slug/modulos/:modulo" element={<Specialty/>}/>
       <Route path="/desafios" element={<Catalog/>}/><Route path="/desafios/:slug" element={<MissionDetail/>}/><Route path="/desafios/:slug/jugar" element={<Player/>}/><Route path="/intentos/:id/resultados" element={<Results/>}/>

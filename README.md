@@ -82,3 +82,11 @@ El engranaje de la cabecera abre `/admin`. Usuario inicial: `admin`. La contrase
 Para una instalación nueva, ejecutar `node scripts/setup-admin.mjs` y proporcionar la contraseña por la entrada estándar. El script crea `.env.local` excluido de Git. Reiniciar Vite después de configurar las variables. Sesión de una hora con cookie HttpOnly/SameSite Strict y Secure en Vercel; validación de origen en solicitudes POST. Límite de cinco intentos fallidos por dirección durante quince minutos en cada instancia del servidor. En un despliegue con múltiples instancias, usar un limitador compartido antes de abrir el acceso públicamente.
 
 Para publicar en Vercel, configurar `ADMIN_USER`, `ADMIN_PASSWORD_HASH` y `ADMIN_SESSION_SECRET` como variables privadas del servidor. Nunca usar el prefijo VITE para estos valores. La API responde 503 si faltan secretos. La vista previa de Vite tiene la API integrada; `vite preview` solo sirve archivos estáticos y no habilita este acceso.
+
+## SEO y publicación de contenido
+
+La compilación genera 18 páginas públicas con HTML legible sin JavaScript, títulos y descripciones únicos, URL canónica en www.tpplay.cl, Open Graph y datos estructurados de WebSite, WebPage y proyecto editorial. Genera robots.txt y sitemap.xml, con exclusión de acceso administrativo, jugador, intentos y progreso personal mediante noindex en el HTML inicial.
+
+Al agregar páginas indexables, actualizar src/seo.ts y ejecutar pnpm seo:routes para sincronizar las rutas de Vercel. Ejecutar pnpm build antes de pnpm test: las pruebas SEO verifican los artefactos publicados.
+
+El SEO técnico facilita el rastreo; no garantiza indexación ni posiciones. Mantener contenido original útil, revisado por docentes, con actividades completas por módulo y fuentes identificadas. Las misiones actuales siguen siendo demostraciones, sin certificación curricular.
