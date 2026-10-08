@@ -9,6 +9,10 @@
       "destination": "/especialidades/index.html"
     },
     {
+      "source": "/juegos/mision-tributos",
+      "destination": "/juegos/mision-tributos/index.html"
+    },
+    {
       "source": "/desafios",
       "destination": "/desafios/index.html"
     },

@@ -90,3 +90,7 @@ La compilación genera 18 páginas públicas con HTML legible sin JavaScript, t�
 Al agregar páginas indexables, actualizar src/seo.ts y ejecutar pnpm seo:routes para sincronizar las rutas de Vercel. Ejecutar pnpm build antes de pnpm test: las pruebas SEO verifican los artefactos publicados.
 
 El SEO técnico facilita el rastreo; no garantiza indexación ni posiciones. Mantener contenido original útil, revisado por docentes, con actividades completas por módulo y fuentes identificadas. Las misiones actuales siguen siendo demostraciones, sin certificación curricular.
+
+## Valle del Coihue: misión tributos
+
+Juego de inducción tributaria en `/juegos/mision-tributos`, accesible desde Desafíos y Gestión comercial y tributaria. Siete misiones en una ciudad compartida, con pasaporte local, glosario, actividades variadas y evaluación formativa independiente del avance. [Edición, fuentes y verificaciones](docs/valle-del-coihue.md). Esta entrega se prepara para revisión local, sin despliegue automático.

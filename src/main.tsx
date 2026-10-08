@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Search, ArrowUpRight, WifiOff, AlertCircle, Compass, Settings } from 'lucide-react';
@@ -9,6 +9,8 @@ import { Home, Catalog, MissionDetail, Specialties, Specialty, Library, Resource
 import Admin from './Admin';
 import Seo from './Metadata';
 import './styles.css';
+import './games/coihue/game.css';
+const CoihueGame=lazy(()=>import('./games/coihue/Game'));
 
 class ErrorBoundary extends Component<{children:ReactNode},{failed:boolean}> {
   state={failed:false}; static getDerivedStateFromError(){return {failed:true};}
@@ -28,7 +30,7 @@ function Layout() {
   return <div className={state.reducedMotion?'reduced-motion':''}><a className="skip-link" href="#contenido">Saltar al contenido</a><Seo/><Header/>{!online&&<div className="status-banner" role="status"><WifiOff size={18}/><span>Estás sin conexión. Las misiones ya cargadas pueden continuar; los enlaces externos necesitan internet.</span><button className="text-button" onClick={()=>setOnline(navigator.onLine)}>Comprobar conexión</button></div>}{saveError&&<div className="status-banner" role="alert"><AlertCircle size={18}/><span>{saveError}</span><button className="button secondary" onClick={retry}>Reintentar guardado</button></div>}
     <main id="contenido" ref={main} tabIndex={-1} className="container"><Routes>
       <Route path="/" element={<Home/>}/><Route path="/especialidades" element={<Specialties/>}/><Route path="/especialidades/:slug" element={<Specialty/>}/><Route path="/especialidades/:slug/modulos/:modulo" element={<Specialty/>}/>
-      <Route path="/desafios" element={<Catalog/>}/><Route path="/desafios/:slug" element={<MissionDetail/>}/><Route path="/desafios/:slug/jugar" element={<Player/>}/><Route path="/intentos/:id/resultados" element={<Results/>}/>
+      <Route path="/juegos/mision-tributos" element={<Suspense fallback={<p role="status">Preparando Valle del Coihue…</p>}><CoihueGame/></Suspense>}/><Route path="/desafios" element={<Catalog/>}/><Route path="/desafios/:slug" element={<MissionDetail/>}/><Route path="/desafios/:slug/jugar" element={<Player/>}/><Route path="/intentos/:id/resultados" element={<Results/>}/>
       <Route path="/recursos" element={<Library/>}/><Route path="/recursos/:slug" element={<ResourceDetail/>}/><Route path="/como-funciona" element={<HowItWorks/>}/><Route path="/mi-aprendizaje" element={<Dashboard/>}/><Route path="/mi-aprendizaje/rutas/:id" element={<LearningRoute/>}/>
       <Route path="/docente" element={<Teacher/>}/><Route path="/docente/*" element={<Info kind="denegado"/>}/><Route path="/admin" element={<Admin/>}/><Route path="/ingresar" element={<Access/>}/><Route path="/recuperar-acceso" element={<Info kind="recuperar"/>}/><Route path="/perfil" element={<Profile/>}/><Route path="/ayuda" element={<Info kind="ayuda"/>}/><Route path="/privacidad" element={<Info kind="privacidad"/>}/><Route path="/condiciones" element={<Info kind="condiciones"/>}/><Route path="*" element={<Missing/>}/>
     </Routes></main><footer className="site-footer"><div className="container footer-top"><div><Logo/><p>Aprende jugando.<br/>Construye tu futuro.</p><span className="pill">Prototipo de demostración</span></div><div><h3>Explora</h3><Link to="/especialidades">Especialidades</Link><Link to="/desafios">Desafíos</Link><Link to="/recursos">Fuentes educativas</Link><Link to="/como-funciona">Cómo funciona</Link></div><div><h3>Tu recorrido</h3><Link to="/mi-aprendizaje">Mi aprendizaje demo</Link><Link to="/perfil">Preferencias</Link><Link to="/docente">Espacio docente</Link></div><div><h3>Conversemos</h3><Link to="/ayuda">Ayuda y contacto</Link><Link to="/privacidad">Privacidad</Link><Link to="/condiciones">Condiciones</Link><a href="https://github.com/marcelobarriaar-sketch/tpplay" target="_blank" rel="noreferrer">Proyecto en GitHub ↗</a></div></div><div className="container creator-signature"><p>Sitio creado por el docente TP <strong>Marcelo Barría Arismendi</strong></p><div><a href="tel:+56930357842">Contacto: +56 9 3035 7842</a><a href="mailto:marcelo.barriaar@gmail.com">marcelo.barriaar@gmail.com</a></div></div><div className="container footer-bottom"><span>© 2026 TP PLAY</span><span>Hecho para aprender. Diseñado para volver a intentar.</span><span>Etapa 1 · Estudiantes invitados</span></div></footer></div>;

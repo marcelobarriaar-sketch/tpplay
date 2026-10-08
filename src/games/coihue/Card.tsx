@@ -1,0 +1,3 @@
+import {Link} from 'react-router-dom';
+import {Compass,ArrowRight} from 'lucide-react';
+export function CoihueCard(){return <article className="panel coihue-card"><div className="coihue-card-icon"><Compass size={36}/></div><p className="eyebrow">GESTIÓN COMERCIAL Y TRIBUTARIA · INDUCCIÓN</p><h2>Valle del Coihue: misión tributos</h2><p>Una ciudad del sur, siete misiones y vecinos que necesitan tu ayuda para preparar la Feria del Lago.</p><p className="muted small">3.º medio TP · 25–35 min orientativos · sin cuenta</p><Link className="button" to="/juegos/mision-tributos">Explorar el valle <ArrowRight size={18}/></Link></article>;}
