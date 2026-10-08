@@ -39,7 +39,7 @@ No requiere variables de entorno ni claves de servicios. Vite muestra la direcci
 - Solo hay un recorrido personal de demo por navegador. Las rutas de administración y cursos muestran acceso no disponible. No se simula seguridad mediante contraseñas, perfiles ficticios o roles en el cliente.
 - El área docente es explicativa; no permite crear cursos ni consultar participantes reales.
 - Sin analítica, audio automático, cronómetros, vidas, mensajería ni clasificación pública.
-- Paisaje SVG original, componentes HTML reales, iconos Lucide (licencia ISC) y tipografía del sistema. La imagen de referencia citada en la especificación no fue adjuntada; el paisaje es una interpretación original de las indicaciones.
+- Paisaje y portadas generados para TP PLAY a partir de la referencia visual aportada, componentes HTML reales, iconos Lucide (licencia ISC) y tipografía del sistema.
 
 ## Validación realizada
 
@@ -68,3 +68,7 @@ Consultar una fuente no valida una misión. El docente responsable, la revisión
 6. Definir infraestructura y publicar en un dominio después de aprobar el destino. `vercel.json` prepara las rutas SPA, pero no conecta ni publica servicios.
 
 La comunidad, colaboración, editor de misiones y reportes pertenecen a ampliaciones posteriores.
+
+## Referencia visual de octubre de 2026
+
+Portada inspirada en la imagen aportada por el usuario: campus lacustre realista, luces violeta, título lima y tarjetas fotográficas. Las cuatro ilustraciones fueron generadas para TP PLAY; son escenas ficticias, sin respaldo institucional. Los archivos WebP se sirven localmente, con variante de portada para pantallas pequeñas y carga diferida en las tarjetas. La interfaz y sus botones son HTML funcional. El progreso sigue calculándose desde los intentos del navegador.
