@@ -31,3 +31,10 @@
 .account-panel>.valley-actions{margin-bottom:20px}
 
 .module-order-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:1rem 0}.module-order-row span{flex:1;min-width:180px}.field textarea{width:100%;padding:1rem;color:inherit;background:var(--panel,#151d35);border:1px solid #46506b;border-radius:12px;font:inherit}
+
+.admin-profile-dialog{background:#151d35;color:#f5f5ff;border:1px solid #46506b;border-radius:20px;max-width:600px;width:calc(100% - 32px);max-height:85vh;overflow:auto;padding:24px}.admin-profile-dialog::backdrop{background:rgba(0,0,0,.7)}
+
+/* Identity uses the same valley panels, lime accents and responsive controls. */
+.identity-access{max-width:660px;margin:2rem auto}.identity-avatar{display:grid;place-items:center;width:72px;height:72px;border-radius:22px;background:var(--lime,#d9ff6c);color:#202124;font-size:1.6rem;font-weight:800}.identity-table-wrap{overflow-x:auto;max-width:100%}.identity-table{width:100%;border-collapse:collapse;min-width:700px}.identity-table th,.identity-table td{text-align:left;padding:1rem .6rem;border-bottom:1px solid #ffffff20}.identity-table th{font-size:.85rem}.valley-dashboard{background:linear-gradient(135deg,#273344,#262039)}.account-form input,.account-form select,.account-form textarea{min-height:46px}.valley-actions{flex-wrap:wrap}.identity-access .valley-actions{gap:1rem}.player-page fieldset{min-width:0;border:0;padding:0}.player-page fieldset legend{font-weight:700;margin-bottom:1rem}
+@media(max-width:700px){.header-actions{gap:.4rem}.header-actions>.text-button{font-size:.8rem;max-width:74px}.header-actions>.login-link{font-size:.8rem}.identity-access{margin:1rem auto}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.valley-actions>.button{width:100%}}
+@media(max-width:600px){.header-actions .create-account-link,.header-actions .admin-gear,.header-actions>.text-button{display:none}.header-actions .icon-button{width:44px;height:44px;min-width:44px;flex-shrink:0}.header-actions>.login-link{max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px;align-items:center}.header-inner{gap:10px}.header-actions{min-width:0;gap:3px}}

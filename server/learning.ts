@@ -24,6 +24,9 @@ import {
   csvCell,
   type GameEvent,
 } from "./learningDomain.js";
+import { identityAction } from "./identity.js";
+import { missions as coihueMissions } from "../src/games/coihue/content.js";
+import { completed, challengesFor } from "../src/games/coihue/progress.js";
 const game = "mision-tributos";
 async function result<T>(query: PromiseLike<{ data: T; error: unknown }>) {
   const { data, error } = await query;
@@ -35,24 +38,37 @@ async function result<T>(query: PromiseLike<{ data: T; error: unknown }>) {
   return data;
 }
 async function bodyOf(req: IncomingMessage & { body?: unknown }) {
-  if (req.body !== undefined) {
-    const value =
-      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+  const checked = (value: unknown) => {
     demand(
-      JSON.stringify(value).length <= 48000,
+      value && typeof value === "object" && !Array.isArray(value),
+      "Solicitud inválida.",
+    );
+    demand(
+      Buffer.byteLength(JSON.stringify(value)) <= 48000,
       "Solicitud demasiado grande.",
       413,
     );
     return value as Record<string, unknown>;
+  };
+  if (req.body !== undefined) {
+    try {
+      return checked(
+        typeof req.body === "string" ? JSON.parse(req.body) : req.body,
+      );
+    } catch (e) {
+      if (e instanceof LearningError) throw e;
+      throw new LearningError("Solicitud inválida.");
+    }
   }
   let raw = "";
   for await (const chunk of req) {
     raw += chunk;
-    demand(raw.length <= 48000, "Solicitud demasiado grande.", 413);
+    demand(Buffer.byteLength(raw) <= 48000, "Solicitud demasiado grande.", 413);
   }
   try {
-    return JSON.parse(raw) as Record<string, unknown>;
-  } catch {
+    return checked(JSON.parse(raw));
+  } catch (e) {
+    if (e instanceof LearningError) throw e;
     throw new LearningError("Solicitud inválida.");
   }
 }
@@ -147,6 +163,10 @@ export function learningHandler(
         405,
       );
       const writeActions = [
+        "identityProfile",
+        "missionEvent",
+        "importLocal",
+        "adminIdentity",
         "profile",
         "join",
         "schoolRequest",
@@ -196,6 +216,28 @@ export function learningHandler(
         "La sesión venció. Ingresa de nuevo.",
         401,
       );
+      let claims: { sub?: string; session_id?: string } = {};
+      try {
+        claims = JSON.parse(
+          Buffer.from(bearer.split(".")[1], "base64url").toString(),
+        );
+      } catch {
+        /* Invalid claims are rejected below. */
+      }
+      demand(
+        claims.sub === verified.data.user.id && claims.session_id,
+        "La sesión no es válida. Ingresa nuevamente.",
+        401,
+      );
+      const validSession = await db.rpc("identity_session_active", {
+        p_user: verified.data.user.id,
+        p_session: uuid(claims.session_id),
+      });
+      demand(
+        !validSession.error && validSession.data,
+        "La sesión fue cerrada. Ingresa nuevamente.",
+        401,
+      );
       demand(
         verified.data.user.email_confirmed_at,
         "Verifica tu correo antes de comenzar.",
@@ -209,12 +251,44 @@ export function learningHandler(
           .maybeSingle(),
       )) as Profile | null;
       demand(
-        actor && actor.active,
+        actor && actor.active && (!actor.status || actor.status === "active"),
         "Esta cuenta está desactivada. Contacta al docente.",
         403,
       );
       const b = req.method === "POST" ? await bodyOf(req) : {};
       const params = new URL(req.url || "/", origin).searchParams;
+      if (
+        req.method === "POST" &&
+        ![
+          "adminIdentity",
+          "adminUser",
+          "evaluation",
+          "adminMembership",
+        ].includes(action || "")
+      )
+        demand(
+          ![
+            "role",
+            "xp",
+            "xpEarned",
+            "xp_earned",
+            "userId",
+            "user_id",
+            "student_id",
+          ].some((k) => k in b),
+          "No puedes modificar identidad, permisos ni XP.",
+          403,
+        );
+      if (action === "adminUser") {
+        requireRole(actor, "admin");
+        demand(
+          b.role === undefined && b.active === undefined,
+          "Utiliza la gestión de identidad con confirmación para cambiar permisos y estado.",
+          403,
+        );
+      }
+      const identity = await identityAction(db, actor, action, b, params);
+      if (identity !== null) return send(200, identity);
       if (action === "me") {
         const courses = await result(
           db
@@ -239,34 +313,46 @@ export function learningHandler(
         return send(200, { profile: actor, courses, feedback, requests });
       }
       if (action === "profile") {
-        const city = uuid(b.city_id);
-        const school = b.school_id ? uuid(b.school_id) : null;
-        demand(
-          await result(
-            db.from("cities").select("id").eq("id", city).maybeSingle(),
-          ),
-        );
-        if (school)
+        const name = text(b.name, 120, 2);
+        const parts = name.split(/\s+/);
+        const first = parts.shift()!;
+        const last = parts.join(" ");
+        demand(first.length <= 60 && last.length <= 60);
+        const updates: Record<string, unknown> = {
+          name,
+          first_name: first,
+          last_name: last,
+        };
+        if (["student", "teacher"].includes(actor.role)) {
+          const city = b.city_id ? uuid(b.city_id) : null,
+            school = b.school_id ? uuid(b.school_id) : null;
+          if (city)
+            demand(
+              await result(
+                db.from("cities").select("id").eq("id", city).maybeSingle(),
+              ),
+            );
+          if (school)
+            demand(
+              city &&
+                (await result(
+                  db
+                    .from("schools")
+                    .select("id")
+                    .eq("id", school)
+                    .eq("city_id", city)
+                    .maybeSingle(),
+                )),
+            );
+          Object.assign(updates, { city_id: city, school_id: school });
+        } else
           demand(
-            await result(
-              db
-                .from("schools")
-                .select("id")
-                .eq("id", school)
-                .eq("city_id", city)
-                .maybeSingle(),
-            ),
+            (!b.school_id || b.school_id === actor.school_id) &&
+              (!b.city_id || b.city_id === actor.city_id),
+            "La institución de un administrador se asigna mediante una operación autorizada.",
+            403,
           );
-        await result(
-          db
-            .from("profiles")
-            .update({
-              name: text(b.name, 120, 2),
-              city_id: city,
-              school_id: school,
-            })
-            .eq("id", actor.id),
-        );
+        await result(db.from("profiles").update(updates).eq("id", actor.id));
         return send(200, { ok: true });
       }
       if (action === "schoolRequest") {
@@ -359,6 +445,20 @@ export function learningHandler(
           409,
         );
         const reduced = reduceGame(saved?.state ?? initialProgress(), event);
+        const projection = coihueMissions
+          .filter((m) => reduced.state.visited.includes(m.id))
+          .map((m) => {
+            const plan = challengesFor(reduced.state, m.id),
+              step = plan.filter((c) =>
+                reduced.state.advanced.includes(c.id),
+              ).length;
+            return {
+              id: m.id,
+              completed: completed(reduced.state, m.id),
+              percentage: Math.round((step / plan.length) * 100),
+              step,
+            };
+          });
         const commit = await db.rpc("commit_game", {
           p_student: actor.id,
           p_game: game,
@@ -367,7 +467,7 @@ export function learningHandler(
           p_state: reduced.state,
           p_event_id: b.event_id,
           p_event: event,
-          p_details: reduced.details,
+          p_details: { ...reduced.details, missions: projection },
         });
         if (commit.error)
           throw new LearningError(

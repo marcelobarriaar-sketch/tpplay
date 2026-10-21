@@ -12,23 +12,46 @@ import { authClient, learningApi } from "./client";
 import type { Profile } from "./model";
 type State = {
   session: Session | null;
+  recovery: boolean;
   profile: Profile | null;
   loading: boolean;
   error: string;
   refresh: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 const Context = createContext<State>({
   session: null,
+  recovery: false,
   profile: null,
   loading: false,
   error: "",
   refresh: async () => {},
+  logout: async () => {},
 });
 export function AccountProvider({ children }: { children: ReactNode }) {
+  const [recovery, setRecovery] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      (window.location.hash.includes("type=recovery") ||
+        sessionStorage.getItem("tpplay-password-recovery") === "yes"),
+  );
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(!!authClient);
   const [error, setError] = useState("");
+  const logout = async () => {
+    try {
+      const result = await authClient?.auth.signOut({ scope: "local" });
+      if (result?.error) throw result.error;
+      setProfile(null);
+      setSession(null);
+      setError("");
+    } catch {
+      setError(
+        "No pudimos cerrar la sesión. Reintenta antes de dejar este equipo.",
+      );
+    }
+  };
   const generation = useRef(0);
   const live = useRef(true);
   const userId = useRef<string | null>(null);
@@ -59,6 +82,10 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     live.current = true;
     void refresh();
+    const focus = () => {
+      if (live.current) void refresh();
+    };
+    window.addEventListener("focus", focus);
     const subscription = authClient?.auth.onAuthStateChange((event, next) => {
       if (!live.current) return;
       setSession(next);
@@ -67,21 +94,29 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_OUT" || userId.current !== next?.user.id)
         setProfile(null);
       userId.current = next?.user.id ?? null;
-      if (event === "PASSWORD_RECOVERY")
+      if (event === "PASSWORD_RECOVERY") {
+        setRecovery(true);
+        sessionStorage.setItem("tpplay-password-recovery", "yes");
         window.location.replace("/cuenta/recuperar");
-      else
+      } else if (event === "SIGNED_OUT") {
+        setRecovery(false);
+        sessionStorage.removeItem("tpplay-password-recovery");
+      } else
         setTimeout(() => {
           if (live.current) void refresh();
         }, 0);
     });
     return () => {
+      window.removeEventListener("focus", focus);
       live.current = false;
       generation.current++;
       subscription?.data.subscription.unsubscribe();
     };
   }, [refresh]);
   return (
-    <Context.Provider value={{ session, profile, loading, error, refresh }}>
+    <Context.Provider
+      value={{ session, recovery, profile, loading, error, refresh, logout }}
+    >
       {children}
     </Context.Provider>
   );

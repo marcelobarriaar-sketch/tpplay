@@ -3,6 +3,15 @@ import assert from "node:assert/strict";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { createClient } from "@supabase/supabase-js";
 import { learningHandler } from "../server/learning";
+const verifiedToken =
+  "header." +
+  Buffer.from(
+    JSON.stringify({
+      sub: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      session_id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    }),
+  ).toString("base64url") +
+  ".signature";
 const id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
   other = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 // An isolated provider adapter verifies the HTTP authorization boundary without claiming a live Supabase deployment.
@@ -16,8 +25,7 @@ function fixture(
   const factory = (() => ({
     auth: {
       getUser: async (token: string) => ({
-        error:
-          !valid || token !== "verified-token" ? new Error("rejected") : null,
+        error: !valid || token !== verifiedToken ? new Error("rejected") : null,
         data: {
           user: {
             id,
@@ -27,6 +35,7 @@ function fixture(
         },
       }),
     },
+    rpc: async () => ({ data: true, error: null }),
     from(table: string) {
       const record = { table, filters: [] as [string, unknown][] };
       reads.push(record);
@@ -66,7 +75,7 @@ async function call(
   path: string,
   {
     method = "GET",
-    token = "verified-token",
+    token = verifiedToken,
     origin = "https://tpplay.test",
     body = {},
   } = {},
@@ -104,6 +113,41 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
   process.env.TPPLAY_APP_ORIGIN = "https://tpplay.test";
   try {
     let f = fixture();
+    for (const role of ["student", "teacher", "institution_admin"]) {
+      const restricted = fixture(role);
+      assert.equal(
+        (await call(restricted.handler, "roleAccess&role=admin")).status,
+        403,
+      );
+      assert.equal((await call(restricted.handler, "adminUsers")).status, 403);
+      if (role === "student")
+        assert.equal(
+          (await call(restricted.handler, "roleAccess&role=teacher")).status,
+          403,
+        );
+    }
+    assert.equal(
+      (await call(fixture("admin").handler, "roleAccess&role=admin")).status,
+      200,
+    );
+    for (const body of [
+      { role: "admin" },
+      { xp: 99999 },
+      { student_id: other },
+    ])
+      assert.equal(
+        (await call(f.handler, "event", { method: "POST", body })).status,
+        403,
+      );
+    assert.equal(
+      (
+        await call(fixture("admin").handler, "adminUser", {
+          method: "POST",
+          body: { id: other, role: "admin" },
+        })
+      ).status,
+      403,
+    );
     assert.equal((await call(f.handler, "courses")).status, 403); // claimed metadata admin is ignored
     assert.equal(
       (await call(f.handler, "progress&student=" + other)).status,

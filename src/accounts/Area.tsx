@@ -1,6 +1,7 @@
 import { lazy, Suspense, Fragment, type ReactNode } from "react";
-import { useLocation } from "react-router-dom";
-import { AccountProvider, useAccount } from "./Session";
+import { useLocation, Navigate } from "react-router-dom";
+import { Guard } from "./Identity";
+import { useAccount } from "./Session";
 import {
   AdventureEntry,
   AccountAccess,
@@ -26,14 +27,20 @@ export default function AccountArea() {
     pathname === "/juegos/mision-tributos" ? (
       <CloudGame />
     ) : pathname === "/acompanamiento" ? (
-      <TeacherPanel />
+      <Guard roles={["teacher", "admin"]}>
+        <TeacherPanel />
+      </Guard>
     ) : pathname === "/administracion-cuentas" ? (
       <AdminAccounts />
-    ) : pathname === "/cuenta" ? (
+    ) : pathname === "/cuenta/cursos" ? (
       <MyAccount />
+    ) : pathname === "/cuenta" ? (
+      <Navigate to="/perfil" replace />
     ) : pathname === "/privacidad" || pathname === "/cuenta/privacidad" ? (
       <AccountPrivacy />
     ) : pathname === "/recuperar-acceso" ||
+      pathname === "/ingresar" ||
+      pathname === "/registro" ||
       ["/cuenta/ingresar", "/cuenta/crear", "/cuenta/recuperar"].includes(
         pathname,
       ) ? (
@@ -42,12 +49,12 @@ export default function AccountArea() {
       <AdventureEntry />
     );
   return (
-    <AccountProvider>
+    <>
       <IdentityBoundary>
         <Suspense fallback={<p role="status">Preparando tu espacio…</p>}>
           {page}
         </Suspense>
       </IdentityBoundary>
-    </AccountProvider>
+    </>
   );
 }

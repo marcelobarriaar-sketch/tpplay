@@ -1,4 +1,4 @@
-import { missions } from './data';
+import { missions } from './data.js';
 export type Attempt = { id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
 export type DemoState = { schema: 1; attempts: Attempt[]; reducedMotion: boolean };
 export const initialState: DemoState = { schema: 1, attempts: [], reducedMotion: false };

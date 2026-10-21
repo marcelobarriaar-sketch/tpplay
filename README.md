@@ -1,100 +1,125 @@
-# TP PLAY
+# TP PLAY · Valle del Coihue
 
-**Aprende jugando. Construye tu futuro.**
+React 19 + TypeScript + Vite y React Router, CSS propio, Vercel Node Functions, Supabase Auth y PostgreSQL. Se conserva el contenido de las especialidades y las misiones existentes.
 
-Prototipo navegable de la Etapa 1 para Educación Media Técnico Profesional. Incluye tres especialidades, tres misiones de demostración, búsqueda y filtros, biblioteca de referencias, rutas, resultados y aprendizaje local. No hay cuentas reales, servidor de evaluaciones ni estudiantes conectados.
+## Desarrollo local
 
-## Ejecutar
-
-Requiere Node.js 22 o posterior. El repositorio incluye `pnpm-lock.yaml` para instalaciones reproducibles.
+Requiere Node.js 22 o posterior y pnpm. El lockfile es `pnpm-lock.yaml`.
 
 ```sh
-corepack enable
 pnpm install --frozen-lockfile
+cp .env.example .env.local
 pnpm dev
+pnpm build
+pnpm test
 ```
 
-También puedes usar `npm install` y `npm run dev`. Para compilar: `pnpm build`; para probar la compilación: `pnpm preview`; para las pruebas de progreso: `pnpm test`.
+Completar `.env.local` privadamente. Vite ejecuta las API de `/api/admin`, `/api/modules` y `/api/learning`; `vite preview` sirve archivos estáticos, no las funciones.
 
-No requiere variables de entorno ni claves de servicios. Vite muestra la dirección de la vista local en la terminal.
+### Variables
 
-## Probar el recorrido
+| Variable | Uso |
+| --- | --- |
+| VITE_SUPABASE_URL | URL pública del proyecto de autenticación |
+| VITE_SUPABASE_PUBLISHABLE_KEY | Clave publicable, protegida por RLS; no usar secret/service role |
+| SUPABASE_URL | Mismo proyecto, solo servidor |
+| SUPABASE_SECRET_KEY | Clave privada del servidor; nunca prefijo VITE |
+| TPPLAY_APP_ORIGIN | Origen exacto, https://www.tpplay.cl en producción; origen propio en Preview/local |
+| ADMIN_USER / ADMIN_PASSWORD_HASH / ADMIN_SESSION_SECRET | Mantenimiento editorial histórico aislado |
+| DATABASE_URL | Conexión PostgreSQL privada para herramientas operativas; no necesaria en frontend |
 
-1. Inicio → **Comenzar desafío**.
-2. En el catálogo, busca o filtra por especialidad, módulo, nivel, dificultad y modalidad. Una búsqueda sin coincidencias permite quitar los filtros.
-3. Abre la ficha de **Misión IVA**, **Rescate del invernadero** o **Tu primera entrevista** y lee su contexto, criterios y estado de revisión.
-4. **Comenzar como invitado** → toma decisiones. Las pistas no penalizan; cada respuesta tiene retroalimentación. Misión IVA incluye un cálculo sobre datos ficticios.
-5. Puedes **Guardar y salir**, recargar y continuar desde **Mi aprendizaje** en el mismo navegador.
-6. Escribe una evidencia sin datos personales y pulsa **Terminar y ver resultados**.
-7. Revisa criterios logrados y por mejorar. La evidencia escrita queda pendiente de revisión; no se evalúa automáticamente.
-8. Abre **Mi aprendizaje** para consultar historial, evidencias, insignias, rutas y XP. Repite una misión para mejorar.
+No publicar valores ni credenciales. `.env*` privados y `work/` están excluidos de Git. No copiar la base de datos de estudiantes al entorno de pruebas.
 
-## Estado de la demo
+### Base de datos y migraciones
 
-- Tres misiones completas, versión `demo-1.0`, datos ficticios y niveles orientativos. Contenido pendiente de validación docente; no se declara alineación curricular ni respaldo oficial.
-- Atención de Párvulos presenta sus espacios y la futura misión «Un espacio seguro para aprender» como **En preparación**. No tiene un botón para jugar contenido inexistente.
-- Los módulos sin misiones muestran su estado y una biblioteca real de enlaces. Las rutas solo incluyen misiones disponibles.
-- `localStorage` guarda respuestas, etapas, evidencia y preferencia de movimiento. Los errores de lectura y escritura muestran aviso y opción de reintento. La demo no sincroniza dispositivos ni garantiza historial permanente.
-- 100 XP por primera finalización de cada misión. 50 adicionales una sola vez si un intento posterior mejora los criterios automáticos. Se calculan desde los intentos terminados, de forma idempotente. No se usan como nota ni certificación; la evidencia abierta no recibe XP de revisión automática.
-- Solo hay un recorrido personal de demo por navegador. Las rutas de administración y cursos muestran acceso no disponible. No se simula seguridad mediante contraseñas, perfiles ficticios o roles en el cliente.
-- El área docente es explicativa; no permite crear cursos ni consultar participantes reales.
-- Sin analítica, audio automático, cronómetros, vidas, mensajería ni clasificación pública.
-- Paisaje y portadas generados para TP PLAY a partir de la referencia visual aportada, componentes HTML reales, iconos Lucide (licencia ISC) y tipografía del sistema.
+Usar un proyecto Supabase de desarrollo separado de producción. Supabase proporciona el esquema `auth`, hashing y sesiones. Aplicar los archivos SQL de `supabase/migrations` en orden. Son transaccionales, versionados y no deben ejecutarse dos veces.
 
-## Validación realizada
+```sh
+TPPLAY_APPLY_MIGRATIONS=true node --env-file=.env.local scripts/migrate-identity.mjs
+```
 
-- TypeScript y compilación Vite.
-- Pruebas automatizadas de puntuación, XP sin duplicados, mejora, recuperación de etapa y datos locales incompatibles.
-- Navegador: recorrido completo de las tres misiones; respuesta incorrecta con retroalimentación; recuperación de un monto y etapa después de recargar; resultado sin XP duplicado; filtros y búsqueda sin coincidencias; menú y filtros móviles.
-- Anchos revisados: 390, 768 y 1280 píxeles, sin desplazamiento horizontal en la portada. Consola sin errores en el recorrido revisado.
+El runner usa `DATABASE_URL`, bloqueo de migraciones y ledger `tpplay_migrations`. En una instalación existente se detiene si no hay baseline: primero comprobar tablas/funciones y registrar **solo** las migraciones realmente aplicadas en ese ledger. No se infiere el estado ni se ejecutan scripts destructivos para reparar diferencias. Las migraciones 005–008 conservan datos anteriores; 006 agrega identidad y progreso, 007 operaciones/proyección y 008 comprueba revocación de sesiones de Supabase. Las pruebas aplican DDL a PostgreSQL embebido (PGlite).
 
-## Fuentes y revisión
+### Autenticación y correo
 
-Referencias consultadas el **7 de octubre de 2026**:
+Configurar Supabase Auth: email+password, contraseña mínima 12, confirmación de correo, Site URL y allowlist exacta de redirecciones `/cuenta` y `/cuenta/recuperar` del entorno. Configurar SMTP de un dominio verificado para producción y sus límites; el correo de prueba predeterminado del proveedor no debe presentarse como correo de producción. El SDK mantiene/renueva sesión; el servidor valida `getUser`, sesión activa de `auth.sessions`, correo verificado y perfil activo en cada petición. La recuperación verifica un enlace de un solo uso del proveedor y luego actualiza contraseña/cierra sesión. El usuario puede solicitar otro enlace si venció. Nunca se guardan contraseñas en tablas de aplicación.
 
-- [SII: Impuestos indirectos](https://www.sii.cl/aprenda_sobre_impuestos/impuestos/impuestos_indirectos.htm), para la tasa y conceptos del IVA. El caso ficticio excluye exenciones, ajustes, saldos previos y compras no admitidas; no constituye una declaración ni asesoría tributaria.
-- [Currículum Nacional: Formación TP](https://www.curriculumnacional.cl/curriculum/3o-4o-medio-tecnico-profesional).
-- [Biblioteca MINEDUC: Programa Administración](https://bibliotecadigital.mineduc.cl/handle/20.500.12365/316).
+Registro público: nombre, apellido, correo, contraseña/confirmación, Estudiante o Docente, aceptación de términos y privacidad. No requiere RUT, domicilio, teléfono ni fecha de nacimiento. El trigger de PostgreSQL limita roles iniciales; `user_metadata.role=admin` no concede permisos. Los roles administrativos solo se asignan por operación protegida.
 
-Consultar una fuente no valida una misión. El docente responsable, la revisión por especialidad y el vínculo exacto con aprendizajes oficiales aún deben establecerse para el piloto.
+Primer administrador, desde un operador con conexión privada, después de registrar y verificar el correo del responsable:
 
-## Antes del piloto
+```sh
+TPPLAY_BOOTSTRAP_ADMIN=true node --env-file=.env.local scripts/bootstrap-identity-admin.mjs correo-del-responsable
+```
 
-1. Validar las misiones, nomenclatura, nivel y aprendizajes con docentes de cada área y programas vigentes; pilotear las duraciones.
-2. Definir operación institucional o abierta, responsables, privacidad escolar y adecuaciones PIE.
-3. Implementar autenticación real y autorización en servidor: estudiantes solo sus intentos; docentes solo sus cursos; roles administrados fuera del registro público.
-4. Agregar base de datos con versiones de desafío, intentos, evidencias, cursos, membresías, asignaciones, revisión docente y eventos únicos de XP calculados en servidor.
-5. Probar aislamiento de datos, guardado entre dispositivos y fallos. No usar la puntuación del navegador como autoridad.
-6. Definir infraestructura y publicar en un dominio después de aprobar el destino. `vercel.json` prepara las rutas SPA, pero no conecta ni publica servicios.
+El script se bloquea si ya hay un administrador activo y registra auditoría. Las promociones posteriores requieren administrador TP PLAY, contraseña actual y registro transaccional. Nadie cambia su propia cuenta por esa vía. Se preserva el acceso editorial anterior en `/admin/mantenimiento`: su cookie no concede permisos sobre datos académicos y conserva la recuperación/contacto independiente de estudiantes.
 
-La comunidad, colaboración, editor de misiones y reportes pertenecen a ampliaciones posteriores.
+## Arquitectura y permisos
 
-## Referencia visual de octubre de 2026
+- Supabase Auth administra identidad, hashing, verificación, refresh y recuperación; perfiles/roles/estado viven en PostgreSQL.
+- Roles: `student`, `teacher`, `institution_admin`, `admin`. Los dos últimos no están en registro público.
+- La API ignora identidades declaradas por el cliente y usa el UUID del token validado. RLS permite solo lecturas propias activas; las escrituras y RPC de progreso son exclusivas de `service_role`.
+- Estado `active`, `pending`, `suspended`. Suspender actualiza `active` mediante trigger y bloquea las siguientes solicitudes, incluso con una sesión abierta.
+- `/admin` lista/busca/filtra/pagina usuarios, muestra fechas/estado y abre ficha; cambios sensibles requieren reautenticación y auditoría. No puede suspenderse o degradarse el último administrador.
+- Dashboard institucional solo consulta el establecimiento asignado. Las funciones futuras están señaladas como próximas. No existe escalamiento de privilegios desde ese panel.
+- Los cursos, membresías, invitaciones, evidencias y revisión docente anteriores se conservan y siguen autorizados por curso/docente. La matrícula no concede un rol docente.
+- Cabecera reacciona a sesión. Cambiar de cuenta/rol desmonta los datos en memoria; nunca se presenta el caché de un estudiante al siguiente.
 
-Portada inspirada en la imagen aportada por el usuario: campus lacustre realista, luces violeta, título lima y tarjetas fotográficas. Las cuatro ilustraciones fueron generadas para TP PLAY; son escenas ficticias, sin respaldo institucional. Los archivos WebP se sirven localmente, con variante de portada para pantallas pequeñas y carga diferida en las tarjetas. La interfaz y sus botones son HTML funcional. El progreso sigue calculándose desde los intentos del navegador.
+## Progreso y XP
 
-La portada se ajustó a una interpretación de la Región de Los Lagos: lago Llanquihue, cono nevado del volcán Osorno, laderas boscosas y detalles de madera. El campus sigue siendo ficticio.
+Tres misiones estándar: `mission_attempts` conserva respuestas, confirmaciones, etapa, evidencia, fechas, versión, revisión y score. `mission_progress` proyecta estado, porcentaje, intentos y XP. Cada petición manda un evento y revisión esperada; el servidor aplica el reductor, determina puntuación y fecha de finalización y confirma la transacción. El mismo UUID de evento no duplica el intento. Otro dispositivo que avanzó produce conflicto visible, con recarga del checkpoint.
 
-## Acceso de administrador
+Valle del Coihue conserva `game_progress`, `evidence` y su reductor de siete misiones; `commit_game` agrega proyecciones y XP. No se recibe una puntuación del navegador. `xp_events` impone unicidad por usuario/misión/regla: 100 por primera finalización y, en misiones estándar, 50 una sola vez por mejorar respecto del primer intento. Logros funcionales: primera misión, 100 XP y tres misiones. El texto de evidencia no recibe una calificación automática.
 
-El engranaje de la cabecera abre `/admin`. Usuario inicial: `admin`. La contraseña se configura solo en el servidor mediante un hash scrypt; no se incluye en Git ni en el JavaScript público. El panel inicial muestra el inventario publicado; todavía no edita contenidos ni revisa evidencias.
+Alumnos ven nivel (cada 200 XP), XP, porcentaje, misiones iniciadas/completadas, historial y logros. Los resultados muestran decisiones, retroalimentación, evidencia y fecha. Guardar/salir y comprobar decisiones esperan confirmación de servidor. Un error conserva el texto en memoria y permite reintentar el mismo evento. Los campos aún sin enviar se identifican como pendientes; no hay promesa de guardado sin conexión.
 
-Para una instalación nueva, ejecutar `node scripts/setup-admin.mjs` y proporcionar la contraseña por la entrada estándar. El script crea `.env.local` excluido de Git. Reiniciar Vite después de configurar las variables. Sesión de una hora con cookie HttpOnly/SameSite Strict y Secure en Vercel; validación de origen en solicitudes POST. Límite de cinco intentos fallidos por dirección durante quince minutos en cada instancia del servidor. En un despliegue con múltiples instancias, usar un limitador compartido antes de abrir el acceso públicamente.
+### Migración local
 
-Para publicar en Vercel, configurar `ADMIN_USER`, `ADMIN_PASSWORD_HASH` y `ADMIN_SESSION_SECRET` como variables privadas del servidor. Nunca usar el prefijo VITE para estos valores. La API responde 503 si faltan secretos. La vista previa de Vite tiene la API integrada; `vite preview` solo sirve archivos estáticos y no habilita este acceso.
+No se elimina `tpplay-demo-v1` ni `tpplay.coihue.tributos.v1`. `/alumno` ofrece importación explícita de datos propios. El servidor reconstruye transiciones, valida versiones/respuestas y recalcula XP; no acepta puntos ni correctitud declarados por el navegador. Los IDs derivados por propietario y `local_imports` evitan duplicados. No se sobrescribe una aventura cloud existente ni otro borrador activo.
 
-## SEO y publicación de contenido
+Las fechas históricas, historial de errores y número exacto de intentos locales no pueden verificarse: se conserva el original y se marca el registro como importado, sin presentarlo como evidencia docente validada. La importación de Coihue reconstruye el checkpoint y ayudas; no inventa eventos pasados. El modo invitado continúa siendo una demostración local separada; las cuentas usan base de datos como autoridad.
 
-La compilación genera 19 páginas públicas con HTML legible sin JavaScript, títulos y descripciones únicos, URL canónica en www.tpplay.cl, Open Graph y datos estructurados de WebSite, WebPage y proyecto editorial. Genera robots.txt y sitemap.xml, con exclusión de acceso administrativo, jugador, intentos y progreso personal mediante noindex en el HTML inicial.
+## Rutas
 
-Al agregar páginas indexables, actualizar src/seo.ts y ejecutar pnpm seo:routes para sincronizar las rutas de Vercel. Ejecutar pnpm build antes de pnpm test: las pruebas SEO verifican los artefactos publicados.
+- `/cuenta/crear`, `/registro`: registro público estudiante/docente.
+- `/cuenta/ingresar`, `/ingresar`: acceso.
+- `/cuenta/recuperar`: solicitud/enlace seguro de recuperación.
+- `/perfil`: identidad, datos editables, contraseña segura y estadísticas personales.
+- `/alumno`, `/mi-aprendizaje` con sesión: dashboard de estudiante.
+- `/docente`, `/acompanamiento`: herramientas docentes protegidas.
+- `/institucion`: dashboard institucional protegido.
+- `/admin`: gestión de usuarios TP PLAY.
+- `/admin/contenidos`, `/admin/mantenimiento`: contenido editorial y mantenimiento existente.
+- `/administracion-cuentas`: herramientas previas de cursos/establecimientos, solo admin.
+- `/cuenta/cursos`: cursos y establecimiento propios.
+- `/desafios/:slug/jugar`, `/intentos/:id/resultados`: misiones/resultados propios en cuenta; demo separada para invitado.
+- `/preferencias`: preferencias de interfaz, no datos académicos.
 
-El SEO técnico facilita el rastreo; no garantiza indexación ni posiciones. Mantener contenido original útil, revisado por docentes, con actividades completas por módulo y fuentes identificadas. Las misiones actuales siguen siendo demostraciones, sin certificación curricular.
+Se conserva Inicio, Especialidades, Administración (especialidad), Desafíos, Misión IVA, Recursos y Cómo funciona. Las rutas privadas usan HTML noindex y quedan fuera del sitemap; `/docente` dejó de ser una página explicativa pública.
 
-## Valle del Coihue: misión tributos
+## Pruebas y cuentas de desarrollo
 
-Juego de inducción tributaria en `/juegos/mision-tributos`, accesible desde Desafíos y Gestión comercial y tributaria. Siete misiones en una ciudad compartida, con pasaporte asociado a la cuenta al activar Supabase, glosario, actividades variadas y evaluación formativa independiente del avance. [Edición, fuentes y verificaciones](docs/valle-del-coihue.md). Esta entrega se prepara para revisión local, sin despliegue automático.
+```sh
+pnpm build
+pnpm test
+TPPLAY_ALLOW_TEST_SEED=true node --env-file=.env.local scripts/seed-identity.mjs
+```
 
-## Cuentas de Valle del Coihue y evaluación docente
+El seed solo funciona en un proyecto separado, se bloquea contra el proyecto de producción y con `VERCEL_ENV=production`, genera los cuatro roles y contraseñas aleatorias en un archivo privado `work/identity-test-accounts.local.json`. No añade credenciales al código.
 
-La bienvenida del inicio abre `/aventura`. La integración preparada usa Supabase Auth y PostgreSQL para cuentas verificadas, cursos por invitación, progreso, evidencias, rúbricas y gestión administrativa. **Falta configurar un proyecto Supabase real; el acceso lo indica y no simula registros.** Consultar [configuración del primer administrador, cursos y pruebas pendientes](docs/cuentas-valle-coihue.md). No se publica automáticamente.
+Pruebas de dominio/API/SQL: permisos por rol, datos propios, escalamiento, falsificación de XP, saltos de etapas, duplicados, persistencia entre sesiones simuladas, RLS, suspensión, auditoría, publicación inmutable y migraciones. Las pruebas con adaptador de proveedor no sustituyen la comprobación real de registro, verificación, correo y recuperación. La evidencia de Preview/Producción y bloqueos reales se documenta por separado; no se da por desplegado un cambio que solo pasó pruebas locales.
+
+## Deployment y rollback
+
+1. Revisar las migraciones y baseline del entorno real; respaldo administrado de la base y snapshot previo del esquema.
+2. Probar en Supabase de desarrollo aislado, aplicar migraciones aditivas y configurar SMTP/redirecciones.
+3. Configurar variables **por entorno** en Vercel. Preview requiere su base y origen propios; no apuntarlo a estudiantes reales para pruebas.
+4. `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm test`.
+5. Desplegar Preview, verificar flujos de estudiante/docente/admin y móvil, y luego publicar/promover el mismo código comprobado.
+6. Verificar dominio oficial, API, base y correo. Mantener deployment anterior para rollback; las tablas añadidas no se eliminan durante un rollback. No borrar respuestas, cuentas ni eventos para reparar despliegues.
+
+## Próxima etapa
+
+`schools` representa Institution, perfiles por rol Teacher/Student, `courses` y `memberships` representan cursos/matrícula. Se agregan `assignments`, `submissions`, `feedback` y `subscriptions` con referencias e índices; acceso futuro denegado por defecto hasta implementar sus políticas/endpoints. La siguiente etapa puede añadir códigos/asignaciones, fechas, entregas y retroalimentación al panel docente sin rehacer autenticación ni progreso.
+
+Las misiones contienen casos ficticios con fuentes SII/MINEDUC; el sistema no afirma certificación, respaldo oficial ni una nota escolar a partir de XP. Ver `docs/identity-architecture.md` para inspección y decisiones. La documentación previa de Coihue se conserva como registro histórico; este documento describe la evolución del núcleo de identidad.

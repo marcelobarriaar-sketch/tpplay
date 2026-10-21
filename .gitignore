@@ -4,3 +4,7 @@ dist/
 !.env.example
 .DS_Store
 work/
+
+# Private identity verification and seed material
+work/
+*.local.json

@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { areas, missions, resources } from '../src/data.js';
-import {recoveryIdentity,recoveryEmail,canRecoverAdmin} from './adminRecovery.js';
+import {recoveryIdentity,recoveryEmail,canRecoverAdmin,adminProfile,saveAdminProfile} from './adminRecovery.js';
 const cookieName = 'tpplay_admin';
 const attempts = new Map<string, { count: number; until: number }>();
 export function verifyPassword(password: string, encoded: string) {
@@ -32,19 +32,23 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
   const token = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith(cookieName + '='))?.slice(cookieName.length + 1) || '';
   if (req.method === 'GET') {
     if (!readSession(token, secret, user)) return send(401, { error: 'Ingresa como administrador para continuar.' });
-    return send(200, { user, areas: areas.map(a=>({name:a.name, modules:a.modules.length})), missions: missions.map(m=>({title:m.title,slug:m.slug})), resourceCount: resources.length, recoveryEmail: await recoveryEmail() });
+    return send(200, { user, areas: areas.map(a=>({name:a.name, modules:a.modules.length})), missions: missions.map(m=>({title:m.title,slug:m.slug})), resourceCount: resources.length, recoveryEmail: await recoveryEmail(), adminProfile: await adminProfile() });
   }
   if (req.method !== 'POST') { res.setHeader('Allow', 'GET, POST'); return send(405, { error: 'Método no permitido.' }); }
   const origin = req.headers.origin;
   if (!origin || (()=>{try{return new URL(origin).host !== req.headers.host;}catch{return true;}})()) return send(403, { error: 'Solicitud no permitida.' });
   if (!(req.headers['content-type'] || '').startsWith('application/json')) return send(415, { error: 'Formato no permitido.' });
-  let body: { action?: string; username?: string; password?: string; accessToken?:string };
+  let body: { action?: string; username?: string; password?: string; accessToken?:string; name?:string; phone?:string; email?:string };
   try {
     if (req.body) body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     else { let raw = ''; for await (const chunk of req) { raw += chunk; if (raw.length > 4096) return send(413, { error: 'Solicitud demasiado larga.' }); } body = JSON.parse(raw); }
   } catch { return send(400, { error: 'Solicitud inválida.' }); }
   if (body.action === 'logout') { setCookie('', 0); return send(200, { ok: true }); }
-  if(body.action==='linkRecovery'||body.action==='accountLogin') {
+  if(body.action==='saveProfile') {
+    if(!readSession(token,secret,user))return send(401,{error:'Ingresa como administrador para actualizar tus datos.'});
+    try{return send(200,{profile:await saveAdminProfile(body)});}catch(e){return send(400,{error:e instanceof Error?e.message:'No pudimos guardar tus datos.'});}
+  }
+  if(body.action==='linkRecovery' ||body.action==='accountLogin') {
     if(body.action==='linkRecovery'&&!readSession(token,secret,user))return send(401,{error:'Ingresa primero con la contraseña de administrador para vincular tu correo.'});
     try {
       const identity=await recoveryIdentity(body.accessToken);
@@ -55,8 +59,9 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
         if(!linked){const {error}=await identity.db.from('admin_recovery').insert({id:'primary',auth_user_id:identity.user.id});if(error)throw error;}
         return send(200,{ok:true,email:identity.user.email});
       }
-      const {data:linked,error}=await identity.db.from('admin_recovery').select('auth_user_id').eq('id','primary').maybeSingle();
+      const {data:linked,error}=await identity.db.from('admin_recovery').select('auth_user_id,pending_auth_user_id').eq('id','primary').maybeSingle();
       if(error)throw error;
+      if(linked?.pending_auth_user_id&&canRecoverAdmin(identity.user,linked.pending_auth_user_id)){const {error:updateError}=await identity.db.from('admin_recovery').update({auth_user_id:identity.user.id,pending_auth_user_id:null,updated_at:new Date().toISOString()}).eq('id','primary').eq('pending_auth_user_id',identity.user.id);if(updateError)throw updateError;linked.auth_user_id=identity.user.id;}
       if(!linked||!canRecoverAdmin(identity.user,linked.auth_user_id))return send(403,{error:'Esta cuenta no está vinculada al administrador.'});
       setCookie(createSession(user,secret),3600);return send(200,{ok:true});
     }catch{return send(401,{error:'No pudimos verificar el correo de recuperación. Ingresa a tu cuenta verificada e inténtalo nuevamente.'});}

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
-import { authClient, learningApi } from "./client";
+import { authClient, learningApi, rememberSession } from "./client";
 import { useAccount } from "./Session";
 import { levelNames, type Registry, type Evaluation } from "./model";
 export function AccountUnavailable() {
@@ -73,191 +73,178 @@ export function AdventureEntry() {
   );
 }
 export function AccountAccess() {
-  const location = useLocation();
-  const mode = location.pathname.endsWith("/crear")
-    ? "create"
-    : location.pathname.endsWith("/recuperar") ||
-        location.pathname === "/recuperar-acceso"
-      ? "recover"
-      : "login";
-  const { session, profile, refresh } = useAccount();
-  const [registry, setRegistry] = useState<Registry>({
-    cities: [],
-    schools: [],
-  });
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [city, setCity] = useState("");
-  const [school, setSchool] = useState("");
-  useEffect(() => {
-    if (authClient && mode === "create")
-      void learningApi<Registry>("registry")
-        .then(setRegistry)
-        .catch((e) => setError(e.message));
-  }, [mode]);
+  const { pathname } = useLocation();
+  const mode =
+    pathname.endsWith("/crear") || pathname === "/registro"
+      ? "create"
+      : pathname.includes("recuperar")
+        ? "recover"
+        : "login";
+  const { session, profile, recovery, refresh } = useAccount();
+  const [busy, setBusy] = useState(false),
+    [notice, setNotice] = useState(""),
+    [error, setError] = useState("");
   if (!authClient) return <AccountUnavailable />;
-  if (profile && mode !== "recover") return <Navigate to="/cuenta" replace />;
-  const submit = async (e: FormEvent<HTMLFormElement>) => {
+  if (profile && mode !== "recover")
+    return (
+      <Navigate
+        to={
+          profile.role === "student"
+            ? "/alumno"
+            : profile.role === "teacher"
+              ? "/docente"
+              : profile.role === "institution_admin"
+                ? "/institucion"
+                : "/admin"
+        }
+        replace
+      />
+    );
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
+    setBusy(true);
     setError("");
     setNotice("");
-    setBusy(true);
-    const form = new FormData(e.currentTarget);
-    const email = String(form.get("email") || "");
-    const password = String(form.get("password") || "");
+    const f = new FormData(e.currentTarget),
+      email = String(f.get("email") || "").trim(),
+      password = String(f.get("password") || "");
     try {
       if (mode === "create") {
-        if (password !== form.get("confirmation"))
+        if (password !== f.get("confirmation"))
           throw Error("Las contraseñas deben coincidir.");
-        const response = await authClient!.auth.signUp({
+        const initial_role = String(f.get("role"));
+        if (
+          !["student", "teacher"].includes(initial_role) ||
+          f.get("terms") !== "on"
+        )
+          throw Error(
+            "Selecciona tu perfil y acepta los términos y privacidad.",
+          );
+        const r = await authClient!.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin + "/cuenta",
             data: {
-              name: String(form.get("name")),
-              city_id: city,
-              school_id: school || null,
-              requested_school: school
-                ? null
-                : String(form.get("requested_school") || ""),
+              first_name: String(f.get("first_name")),
+              last_name: String(f.get("last_name")),
+              initial_role,
+              terms_version: "2026-10",
             },
           },
         });
-        if (response.error)
+        if (r.error)
           throw Error(
-            "No pudimos crear la cuenta. Revisa los datos y vuelve a intentarlo.",
+            r.error.code === "user_already_exists"
+              ? "Ya existe una cuenta asociada a este correo."
+              : "No pudimos crear la cuenta. Revisa los datos o intenta ingresar si ya estás registrado.",
           );
-        setNotice(
-          "Revisa tu correo y abre el enlace de verificación. Después podrás ingresar; si tu establecimiento no estaba en la lista, su incorporación quedará pendiente de revisión.",
-        );
-      } else if (mode === "recover" && session) {
-        if (password !== form.get("confirmation"))
+        if (r.data.user?.identities?.length === 0)
+          setNotice(
+            "Si ya tienes una cuenta, ingresa o recupera tu contraseña. Si es un registro nuevo, revisa tu correo para verificarlo.",
+          );
+        else
+          setNotice(
+            "Cuenta creada. Revisa tu correo y abre el enlace de verificación antes de ingresar.",
+          );
+      } else if (mode === "recover" && session && recovery) {
+        if (password !== f.get("confirmation"))
           throw Error("Las contraseñas deben coincidir.");
-        const response = await authClient!.auth.updateUser({ password });
-        if (response.error)
+        const r = await authClient!.auth.updateUser({ password });
+        if (r.error)
           throw Error(
-            "El enlace venció o no pudimos cambiar la contraseña. Solicita otro enlace.",
+            "No pudimos cambiar la contraseña. Solicita un enlace nuevo.",
           );
         await authClient!.auth.signOut();
-        setNotice("Contraseña actualizada. Ingresa con tu nueva contraseña.");
+        setNotice(
+          "Contraseña actualizada. Ya puedes ingresar con tu nueva contraseña.",
+        );
       } else if (mode === "recover") {
-        const response = await authClient!.auth.resetPasswordForEmail(email, {
+        const r = await authClient!.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + "/cuenta/recuperar",
         });
-        if (response.error)
-          throw Error("No pudimos solicitar el enlace. Intenta más tarde.");
+        if (r.error)
+          throw Error(
+            "No pudimos solicitar el correo. Espera unos minutos y vuelve a intentar.",
+          );
         setNotice(
-          "Si existe una cuenta con este correo, recibirás un enlace de recuperación. Revisa también la carpeta de spam.",
+          "Si el correo corresponde a una cuenta, recibirás un enlace seguro. Revisa también spam.",
         );
       } else {
-        const response = await authClient!.auth.signInWithPassword({
+        rememberSession(f.get("remember") === "on");
+        const r = await authClient!.auth.signInWithPassword({
           email,
           password,
         });
-        if (response.error)
+        if (r.error)
           throw Error(
-            "No pudimos ingresar. Revisa tus datos y verifica el correo.",
+            "Correo o contraseña incorrectos, o correo pendiente de verificación.",
           );
         await refresh();
       }
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (e) {
+      setError((e as Error).message || "No pudimos conectar. Reintenta.");
     } finally {
       setBusy(false);
     }
-  };
+  }
   return (
-    <section className="panel account-panel">
-      <p className="eyebrow">TU ACCESO A VALLE DEL COIHUE</p>
+    <section className="panel account-panel identity-access">
+      <p className="eyebrow">VALLE DEL COIHUE · TU AVENTURA CONTINÚA</p>
       <h1>
         {mode === "create"
-          ? "Crear mi cuenta"
+          ? "Crea tu cuenta TP PLAY"
           : mode === "recover"
-            ? session
-              ? "Elegir nueva contraseña"
-              : "Recuperar mi acceso"
-            : "Ingresar"}
+            ? session && recovery
+              ? "Elige tu nueva contraseña"
+              : "Recupera tu acceso"
+            : "¡Qué bueno verte de nuevo!"}
       </h1>
+      <p>Tu recorrido te acompaña desde cualquier dispositivo.</p>
       {notice && (
-        <p className="notice" role="status">
+        <p role="status" className="notice">
           {notice}
         </p>
       )}
       {error && (
-        <p className="notice" role="alert">
+        <p role="alert" className="notice">
           {error}
         </p>
       )}
-      <form onSubmit={submit} className="account-form">
+      <form className="account-form" onSubmit={submit}>
         {mode === "create" && (
           <>
             <label className="field">
-              Nombre del estudiante
+              Nombre
               <input
-                name="name"
-                autoComplete="name"
+                name="first_name"
+                autoComplete="given-name"
                 minLength={2}
-                maxLength={120}
+                maxLength={60}
                 required
               />
             </label>
             <label className="field">
-              Ciudad donde estudias
-              <select
-                value={city}
+              Apellido
+              <input
+                name="last_name"
+                autoComplete="family-name"
+                minLength={2}
+                maxLength={60}
                 required
-                onChange={(e) => {
-                  setCity(e.target.value);
-                  setSchool("");
-                }}
-              >
-                <option value="">Selecciona tu ciudad</option>
-                {registry.cities.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
             <label className="field">
-              Colegio o establecimiento
-              <select
-                value={school}
-                onChange={(e) => setSchool(e.target.value)}
-              >
-                <option value="">Mi establecimiento aún no aparece</option>
-                {registry.schools
-                  .filter((s) => s.city_id === city)
-                  .map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
+              Quiero ingresar como
+              <select name="role" required>
+                <option value="student">Estudiante</option>
+                <option value="teacher">Docente</option>
               </select>
-              <small>
-                Si falta, escribe su nombre para solicitar su incorporación.
-                Ningún colegio asigna un curso automáticamente.
-              </small>
             </label>
-            {!school && (
-              <label className="field">
-                Nombre del establecimiento que falta
-                <input
-                  name="requested_school"
-                  required
-                  minLength={2}
-                  maxLength={160}
-                />
-                <small>
-                  Quedará pendiente de revisión por el administrador.
-                </small>
-              </label>
-            )}
           </>
         )}
-        {!(mode === "recover" && session) && (
+        {!(mode === "recover" && session && recovery) && (
           <label className="field">
             Correo electrónico
             <input
@@ -269,7 +256,7 @@ export function AccountAccess() {
             />
           </label>
         )}
-        {(mode !== "recover" || session) && (
+        {(mode !== "recover" || (session && recovery)) && (
           <label className="field">
             {mode === "recover" ? "Nueva contraseña" : "Contraseña"}
             <input
@@ -282,16 +269,17 @@ export function AccountAccess() {
               maxLength={256}
               required
             />
-            <small>
-              {mode === "login"
-                ? "Puedes usar tu gestor de contraseñas."
-                : "Usa al menos 12 caracteres. Puedes pegar y usar un gestor de contraseñas."}
-            </small>
+            {mode !== "login" && (
+              <small>
+                Al menos 12 caracteres. Puedes pegar desde tu gestor de
+                contraseñas.
+              </small>
+            )}
           </label>
         )}
-        {(mode === "create" || (mode === "recover" && session)) && (
+        {(mode === "create" || (mode === "recover" && session && recovery)) && (
           <label className="field">
-            Confirmación de contraseña
+            Confirmar contraseña
             <input
               name="confirmation"
               type="password"
@@ -304,30 +292,39 @@ export function AccountAccess() {
         )}
         {mode === "create" && (
           <label className="toggle">
-            <input type="checkbox" required />
-            He leído el <Link to="/cuenta/privacidad">aviso de privacidad</Link>
-            .
+            <input name="terms" type="checkbox" required />
+            Acepto los <Link to="/condiciones">términos</Link> y el{" "}
+            <Link to="/cuenta/privacidad">aviso de privacidad</Link>.
           </label>
         )}
-        <button
-          className="button"
-          disabled={busy || (mode === "create" && !city)}
-        >
+        {mode === "login" && (
+          <label className="toggle">
+            <input type="checkbox" name="remember" defaultChecked />
+            Mantener mi sesión en este dispositivo
+          </label>
+        )}
+        {mode === "login" && (
+          <p className="muted small">
+            La sesión se mantiene al actualizar. En equipos compartidos,
+            recuerda cerrar sesión.
+          </p>
+        )}
+        <button className="button" disabled={busy}>
           {busy
             ? "Procesando…"
             : mode === "create"
-              ? "Crear cuenta y verificar correo"
+              ? "Crear cuenta"
               : mode === "recover"
-                ? session
+                ? session && recovery
                   ? "Guardar nueva contraseña"
-                  : "Enviar enlace"
-                : "Ingresar"}
+                  : "Enviarme enlace seguro"
+                : "Ingresar a mi aventura"}
         </button>
       </form>
-      <div className="valley-actions spaced">
+      <div className="valley-actions">
         <Link to="/cuenta/ingresar">Ingresar</Link>
-        <Link to="/cuenta/crear">Crear mi cuenta</Link>
-        <Link to="/cuenta/recuperar">Recuperar contraseña</Link>
+        <Link to="/cuenta/crear">Crear cuenta</Link>
+        <Link to="/cuenta/recuperar">Olvidé mi contraseña</Link>
       </div>
     </section>
   );
@@ -355,9 +352,9 @@ export function AccountPrivacy() {
       </p>
       <p>
         El navegador conserva la sesión de acceso. Cierra sesión al terminar en
-        un equipo compartido. El avance de Valle del Coihue se guarda en el
-        servidor; las otras misiones de demostración conservan su almacenamiento
-        local.
+        un equipo compartido. El progreso asociado a tu cuenta se guarda en el
+        servidor. Los recorridos de invitado se conservan en el navegador y
+        puedes importarlos a tu cuenta.
       </p>
       <p>
         Antes de habilitar cuentas de menores, el establecimiento y el
@@ -505,8 +502,8 @@ export function MyAccount() {
                   setCity(e.target.value);
                   setSchool("");
                 }}
-                required
               >
+                <option value="">No indicada (opcional)</option>
                 {registry.cities.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}

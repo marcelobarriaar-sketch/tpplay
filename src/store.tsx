@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import {useAccount} from './accounts/Session';
 import { initialState, parseDemoState, STORAGE_KEY, type DemoState, type Attempt } from './progress';
 type Store = { state: DemoState; saveError: string; saveAttempt: (attempt: Attempt) => void; save: (state: DemoState) => void; retry: () => void };
 const Context = createContext<Store | null>(null);
 export function DemoProvider({ children }: { children: ReactNode }) {
+  const {session}=useAccount();
   const [loaded] = useState(() => {
-    try { const value = localStorage.getItem(STORAGE_KEY); return { state: value ? parseDemoState(value) : initialState, error: '' }; }
+    try { if(session)return {state:initialState,error:''}; const value = localStorage.getItem(STORAGE_KEY); return { state: value ? parseDemoState(value) : initialState, error: '' }; }
     catch { return { state: initialState, error: 'No pudimos recuperar el avance local. Puedes continuar esta sesión; los datos anteriores no se han eliminado.' }; }
   });
   const [state, setState] = useState<DemoState>(loaded.state);

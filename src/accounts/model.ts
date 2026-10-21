@@ -1,9 +1,17 @@
-export type Role = "student" | "teacher" | "admin";
+export type Role = "student" | "teacher" | "institution_admin" | "admin";
 export type Profile = {
   id: string;
   name: string;
   role: Role;
   active: boolean;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  status?: "active" | "pending" | "suspended";
+  created_at?: string;
+  updated_at?: string;
+  last_login_at?: string | null;
+  email_verified?: boolean;
   school_id: string | null;
   city_id: string | null;
 };

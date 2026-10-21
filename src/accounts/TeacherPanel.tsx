@@ -107,7 +107,7 @@ export default function TeacherPanel() {
   }, [course]);
   if (loading) return <p role="status">Comprobando acceso…</p>;
   if (!profile) return <AdventureEntry />;
-  if (profile.role === "student")
+  if (!["teacher", "admin"].includes(profile.role))
     return (
       <section className="panel">
         <h1>Acceso docente</h1>
@@ -189,6 +189,31 @@ export default function TeacherPanel() {
   );
   return (
     <>
+      <section className="panel">
+        <p className="eyebrow">TP PLAY DOCENTE</p>
+        <h1>Bienvenido/a, {profile.first_name || profile.name}</h1>
+        <div className="account-roster">
+          <article className="panel">
+            <h2>Mis cursos</h2>
+            <p>Organiza tus cursos autorizados en este panel.</p>
+          </article>
+          <article className="panel">
+            <h2>Misiones</h2>
+            <Link to="/desafios">Explorar misiones disponibles</Link>
+            <p>Asignaciones con fecha: disponible próximamente.</p>
+          </article>
+          <article className="panel">
+            <h2>Estudiantes</h2>
+            <p>Selecciona un curso para ver a sus integrantes.</p>
+          </article>
+          <article className="panel">
+            <h2>Resultados</h2>
+            <p>
+              Revisa evidencias de Valle del Coihue y publica retroalimentación.
+            </p>
+          </article>
+        </div>
+      </section>
       <section className="panel">
         <p className="eyebrow">ACOMPAÑAMIENTO DOCENTE</p>
         <h1>Cursos y evidencias de aprendizaje</h1>
