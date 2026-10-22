@@ -68,9 +68,10 @@ test("official plan has six common and five RH modules; every module has a publi
   );
 });
 test("roadmap is balanced, unique, non-playable drafts remain honest and existing missions keep URLs", () => {
-  assert.equal(roadmap.length, 28);
-  assert.equal(new Set(roadmap.map((m) => m.id)).size, 28);
-  assert.equal(roadmap.filter((m) => m.available).length, 3);
+  assert.equal(roadmap.length, 29);
+  assert.equal(new Set(roadmap.map((m) => m.order)).size, 29);
+  assert.equal(new Set(roadmap.map((m) => m.id)).size, 29);
+  assert.equal(roadmap.filter((m) => m.available).length, 4);
   for (const m of roadmap) {
     assert.ok(
       modules.some((x) => x.moduleId === m.moduleId && x.grade === m.grade),

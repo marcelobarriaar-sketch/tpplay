@@ -12,7 +12,7 @@ test("Module ordering preserves all available missions and drops unknown ids", (
       "unknown",
       "mision-iva",
     ]),
-    ["mision-iva", "mision-tributos"],
+    ["mision-iva", "mision-tributos", "inicio-actividades"],
   );
 });
 test("Module editor requires admin session and same origin before data access", async () => {

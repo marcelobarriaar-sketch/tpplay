@@ -1896,6 +1896,51 @@ export const administrationMissions = [
     ],
   },
 ];
+// New playable experience linked to the existing GCT plan; no old IDs are renamed.
+const initiationTemplate = administrationMissions.find(
+  (m) => m.slug === "mision-iva",
+)!;
+for (const mission of administrationMissions) {
+  if (mission.order >= 5) mission.order += 1;
+}
+administrationMissions.push({
+  ...initiationTemplate,
+  id: "ADM-GCT-005",
+  slug: "inicio-actividades",
+  title: "La primera apertura: expediente Coihue",
+  subtitle:
+    "Prepara el inicio de actividades de un negocio de Villa del Coihue.",
+  grade: 3,
+  moduleId: "ADM-GCT",
+  curriculumAlignment: {
+    status: "partial",
+    description:
+      "Inducción aplicada a la preparación del aviso y sus respaldos en Gestión comercial y tributaria. Alineación con un criterio oficial específico pendiente de revisión; no acredita por sí sola el OA 1 ni todo el AE 2.",
+    sourceUrl: initiationTemplate.curriculumAlignment.sourceUrl,
+  },
+  learningObjective:
+    "Preparar un aviso simulado y distinguir inicio, verificación y competencias institucionales.",
+  learningOutcome: null,
+  competency:
+    "Revisar antecedentes y comunicar decisiones administrativas responsables.",
+  duration: "20–30 min",
+  xp: 100,
+  status: "pilot",
+  version: "inicio-1.0",
+  reviewedAt: "2026-10-21",
+  updatedAt: "2026-10-21",
+  order: 5,
+  available: true,
+  href: "/desafios/inicio-actividades",
+  location: {
+    zoneId: "civico",
+    building: "Oficina del SII · Villa del Coihue",
+  },
+  teacher: {
+    ...initiationTemplate.teacher,
+    evidence: "Nota razonada para Camila y revisión del expediente ficticio.",
+  },
+});
 export const modulePath = (m: (typeof administrationModules)[number]) =>
   `/especialidades/administracion/modulos/${m.slug}`;
 export const findAdministrationModule = (slug?: string) =>

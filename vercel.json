@@ -121,6 +121,18 @@
       "destination": "/especialidades/administracion/modulos/emprendimiento-y-empleabilidad/index.html"
     },
     {
+      "source": "/desafios/inicio-actividades",
+      "destination": "/desafios/inicio-actividades/index.html"
+    },
+    {
+      "source": "/recursos/sii-inicio-actividades",
+      "destination": "/recursos/sii-inicio-actividades/index.html"
+    },
+    {
+      "source": "/recursos/sii-verificacion-actividad",
+      "destination": "/recursos/sii-verificacion-actividad/index.html"
+    },
+    {
       "source": "/((?!api/|assets/|images/|favicon.svg|robots.txt|sitemap.xml).*)",
       "destination": "/app.html"
     }

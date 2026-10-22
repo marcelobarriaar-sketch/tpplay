@@ -1,3 +1,4 @@
+import { InicioScene, InicioDocuments, isInicio } from "../games/inicio/Scene";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { missions } from "../data";
@@ -264,6 +265,9 @@ function MissionContent({ result }: { result: boolean }) {
           style={{ width: `${(a.index / (mission.steps.length + 1)) * 100}%` }}
         />
       </div>
+      {isInicio(mission.slug) && (
+        <InicioScene key={a.index} index={a.index} confirmed={a.confirmed} />
+      )}
       <section className="panel task-panel">
         <p className="eyebrow">
           ETAPA {a.index + 1} DE {mission.steps.length + 1}
@@ -273,7 +277,13 @@ function MissionContent({ result }: { result: boolean }) {
         <fieldset disabled={busy || !!pending.current}>
           <legend>{step?.prompt || "Tu evidencia final"}</legend>
           {step ? (
-            step.kind === "number" ? (
+            isInicio(mission.slug) && a.index === 4 ? (
+              <InicioDocuments
+                value={value}
+                onChange={setValue}
+                disabled={confirmed || busy || !!pending.current}
+              />
+            ) : step.kind === "number" ? (
               <label className="field">
                 Monto en pesos
                 <input
