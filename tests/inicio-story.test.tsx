@@ -14,7 +14,7 @@ test('Camila has an introduction before decisions, nine story beats, consistent 
  assert.deepEqual([...new Set(camilaChapters.map(c=>c.look))].sort(),[0,1,2]);
  for(let index=0;index<9;index++){
   const html=renderToStaticMarkup(<CamilaChapter index={index}/>);
-  assert.match(html,/camila-historia.png/);
+  assert.match(html,/camila-fotografia.webp/);
   assert.match(html,/alt="Camila,/);
  }
  assert.match(renderToStaticMarkup(<CamilaChapter ending/>),/permisos que deberá consultar por separado/);

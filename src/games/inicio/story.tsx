@@ -13,7 +13,7 @@ export const camilaChapters = [
 ] as const;
 
 export function CamilaPortrait({look, alt}:{look:number;alt:string}) {
-  return <div className="camila-portrait"><img src="/images/camila-historia.png" alt={alt} width="1774" height="887" style={{transform:`translateX(-${look*100/3}%)`}} /></div>;
+  return <div className="camila-portrait"><img src="/images/camila-fotografia.webp" alt={alt} width="1774" height="887" style={{transform:`translateX(-${look*100/3}%)`}} /></div>;
 }
 export function CamilaChapter({index=0,ending=false}:{index?:number;ending?:boolean}) {
  const chapter=camilaChapters[Math.min(Math.max(index,0),8)];
