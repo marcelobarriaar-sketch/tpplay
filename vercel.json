@@ -9,6 +9,10 @@
       "destination": "/especialidades/index.html"
     },
     {
+      "source": "/juegos/mision-tributos",
+      "destination": "/juegos/mision-tributos/index.html"
+    },
+    {
       "source": "/desafios",
       "destination": "/desafios/index.html"
     },
@@ -19,10 +23,6 @@
     {
       "source": "/como-funciona",
       "destination": "/como-funciona/index.html"
-    },
-    {
-      "source": "/docente",
-      "destination": "/docente/index.html"
     },
     {
       "source": "/ayuda",

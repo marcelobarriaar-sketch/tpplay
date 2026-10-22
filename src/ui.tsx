@@ -1,3 +1,4 @@
+import {useAccount} from './accounts/Session';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Play, BriefcaseBusiness, Sprout, HeartHandshake, Sparkles, Clock, ArrowRight } from 'lucide-react';
 import { areaName, type Mission, type Area, areas } from './data';
@@ -7,7 +8,7 @@ export function AreaIcon({ area, size = 24 }: { area: Area; size?: number }) { c
 export function SectionHead({ eyebrow, title, subtitle, action }: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode }) { return <div className="section-head"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2>{subtitle && <p className="muted">{subtitle}</p>}</div>{action}</div>; }
 export function PageHead({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) { return <header className="page-head"><p className="eyebrow">{eyebrow}</p><h1>{title}</h1>{children && <div className="muted measure">{children}</div>}</header>; }
 export function ButtonLink({ to, children, secondary = false }: { to: string; children: ReactNode; secondary?: boolean }) { return <Link className={`button ${secondary ? 'secondary' : ''}`} to={to}>{children}<ArrowRight size={17}/></Link>; }
-export function DemoNote() { return <div className="demo-note"><Sparkles size={16}/><span>Demostración · Casos ficticios · Avance solo en este navegador</span></div>; }
+export function DemoNote() { const {profile}=useAccount();return <div className="demo-note"><Sparkles size={16}/><span>{profile?'Casos ficticios · Progreso de tu cuenta en servidor':'Invitado · Casos ficticios · Avance solo en este navegador'}</span></div>; }
 export function Empty({ title, children }: { title: string; children?: ReactNode }) { return <div className="empty"><Sparkles size={32}/><h3>{title}</h3>{children}</div>; }
 const missionImages: Record<string, string> = { 'mision-iva': 'iva', 'rescate-invernadero': 'invernadero', 'primera-entrevista': 'entrevista' };
 export function MissionCard({ mission }: { mission: Mission; index?: number }) { return <article className="mission-card photographic-card">
