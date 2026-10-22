@@ -1,4 +1,4 @@
-import { administrationCommercialName } from "../../administrationCurriculum";
+import { administrationCommercialName } from "../../administrationCurriculum.js";
 import type { Mission, Step } from "../../data";
 export const inicioSlug = "inicio-actividades";
 export const inicioSources = [
