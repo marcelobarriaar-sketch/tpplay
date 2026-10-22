@@ -32,13 +32,13 @@ export const dossierCards = [
   {
     id: "arriendo",
     title: "Contrato del local actual",
-    text: "Camila Soto · Avenida Coihue 120, Villa del Coihue · uso del local del restaurante. Documento ficticio.",
+    text: "Camila Soto · Avenida Coihue 120, Villa del Coihue · uso del local del restaurante.",
     help: "Respalda el uso del domicilio declarado en este caso.",
   },
   {
     id: "equipamiento",
     title: "Respaldo de equipamiento",
-    text: "Compra de mesas y equipamiento para La Mesa del Coihue. Destino: Avenida Coihue 120. Documento ficticio.",
+    text: "Compra de mesas y equipamiento para La Mesa del Coihue. Destino: Avenida Coihue 120.",
     help: "Aporta antecedentes coherentes de la actividad descrita.",
   },
   {
@@ -72,7 +72,7 @@ export const inicioSteps: Step[] = [
   {
     title: "El encargo de Camila",
     context:
-      "En Villa del Coihue, Camila abrirá La Mesa del Coihue: prepara y vende comidas. Actúa como persona natural y pide tu apoyo administrativo. Todavía no presenta el aviso de inicio de actividades. Su negocio y todos sus antecedentes son ficticios.",
+      "En Villa del Coihue, Camila abrirá La Mesa del Coihue: prepara y vende comidas. Actúa como persona natural y pide tu apoyo administrativo. Todavía no presenta el aviso de inicio de actividades.",
     prompt: "¿Qué situación debes ayudar a resolver?",
     options: [
       "Informar al SII el inicio de una actividad económica, sin confundirlo con obtener todos los permisos del restaurante",
@@ -91,7 +91,7 @@ export const inicioSteps: Step[] = [
   {
     title: "Dos puertas, un mismo servicio",
     context:
-      "Llegas a la oficina ficticia del SII del Barrio Cívico. Paula, orientadora, explica: «Podemos orientar. La regla general del aviso es por internet, salvo excepciones legales. No necesitas esperar una visita para empezar a revisar tus antecedentes». En la oficina también trabaja el equipo fiscalizador del pueblo.",
+      "Llegas a la oficina del SII del Barrio Cívico. Paula, orientadora, explica: «Podemos orientar. La regla general del aviso es por internet, salvo excepciones legales. No necesitas esperar una visita para empezar a revisar tus antecedentes». En la oficina también trabaja el equipo fiscalizador del pueblo.",
     prompt: "¿Qué recorrido eliges para este caso con conexión a internet?",
     options: [
       "Esperar en el restaurante a que un fiscalizador haga el aviso por Camila",
@@ -111,7 +111,7 @@ export const inicioSteps: Step[] = [
   {
     title: "La actividad detrás del letrero",
     context:
-      "Camila vende comidas preparadas para consumo de sus clientes. El letrero dice «La Mesa del Coihue». El portal requiere identificar la actividad económica; un nombre comercial no basta. En la simulación no utilizamos códigos reales.",
+      "Camila vende comidas preparadas para consumo de sus clientes. El letrero dice «La Mesa del Coihue». El portal requiere identificar la actividad económica; un nombre comercial no basta.",
     prompt: "¿Cómo prepararías la descripción de la actividad?",
     options: [
       "Escribir solo «La Mesa del Coihue», sin explicar qué hace",
@@ -161,8 +161,8 @@ export const inicioSteps: Step[] = [
   {
     title: "Portal de práctica: revisa antes de enviar",
     context:
-      "La ficha revisada dice: Camila Soto; preparación y venta de comidas; Avenida Coihue 120; inicio 12/09/2026. El portal del juego es una maqueta educativa: no pide RUT, claves, dinero ni documentos personales, y no se conecta al SII.",
-    prompt: "¿Qué resumen enviarías en la simulación?",
+      "La ficha revisada dice: Camila Soto; preparación y venta de comidas; Avenida Coihue 120; inicio 12/09/2026. Camila te pide revisar el resumen antes de avanzar.",
+    prompt: "¿Qué resumen enviarías?",
     options: [
       "Actividad de transporte · Avenida Coihue 120 · 12/09/2026",
       "Restaurante · Avenida Coihue 210 · 12/09/2026",
@@ -172,7 +172,7 @@ export const inicioSteps: Step[] = [
     feedback: [
       "La actividad no coincide con el negocio del expediente. Corrige antes de enviar.",
       "La dirección corresponde al local descartado. Revisa los antecedentes del domicilio actual.",
-      "El resumen coincide con los antecedentes. En un trámite real deben revisarse también todos los campos y acreditaciones que solicite la aplicación. El envío de este juego no presenta un aviso real.",
+      "El resumen coincide con los antecedentes. En un trámite real deben revisarse también todos los campos y acreditaciones que solicite la aplicación.",
     ],
     hint: "Cruza tres datos: actividad, domicilio y fecha. No basta que dos coincidan.",
     criterion: "Detecta inconsistencias entre declaración y antecedentes",
@@ -180,7 +180,7 @@ export const inicioSteps: Step[] = [
   {
     title: "La fiscalizadora sale de la oficina",
     context:
-      "En esta rama ficticia, Camila necesita emitir por primera vez facturas que dan derecho a crédito fiscal y solicita verificación de actividad por el canal oficial. El SII revisa antecedentes y, cuando corresponda, puede coordinar una visita. En la historia, la fiscalizadora Elena sale de la oficina del Barrio Cívico hacia el restaurante tras coordinarla con Camila. No todos los inicios reciben visita.",
+      "En esta etapa, Camila necesita emitir por primera vez facturas que dan derecho a crédito fiscal y solicita verificación de actividad por el canal oficial. El SII revisa antecedentes y, cuando corresponda, puede coordinar una visita. La fiscalizadora Elena sale de la oficina del Barrio Cívico hacia el restaurante tras coordinarla con Camila. No todos los inicios reciben visita.",
     prompt: "¿Cómo preparas esta revisión?",
     options: [
       "Ocultar las diferencias y entregar la contraseña para acelerar la visita",
@@ -199,7 +199,7 @@ export const inicioSteps: Step[] = [
   {
     title: "La apertura responsable",
     context:
-      "El expediente educativo está revisado. Camila pregunta si puede anunciar «todos los permisos aprobados». La oficina del SII no reemplaza a la municipalidad ni a las otras autoridades competentes. El juego no emite certificados oficiales ni autoriza la apertura del negocio.",
+      "El expediente está revisado. Camila pregunta si puede anunciar «todos los permisos aprobados». La oficina del SII no reemplaza a la municipalidad ni a las otras autoridades competentes.",
     prompt: "¿Qué le explicarías a Camila?",
     options: [
       "El aviso tributario resuelve todos los permisos del restaurante",
@@ -210,7 +210,7 @@ export const inicioSteps: Step[] = [
     feedback: [
       "Un trámite tributario no concentra todas las competencias públicas.",
       "La verificación no implica por sí misma una multa. No inventes consecuencias automáticas.",
-      "La buena gestión distingue competencias, conserva respaldos y revisa obligaciones. Completaste un expediente de aprendizaje; la formalización real requiere seguir las instrucciones vigentes de cada organismo.",
+      "La buena gestión distingue competencias, conserva respaldos y revisa obligaciones. Cada organismo tiene sus propias competencias; Camila debe revisar lo que corresponda a su actividad.",
     ],
     hint: "Una gestión responsable verifica el alcance de cada trámite; evita prometer más de lo que acredita.",
     criterion:
@@ -230,10 +230,10 @@ export const inicioMission: Mission = {
   curriculumId: "ADM-GCT-005",
   status: "pilot",
   context:
-    "En Villa del Coihue, Camila necesita iniciar las actividades de su restaurante La Mesa del Coihue. Recorrerás el Barrio Cívico, la oficina ficticia del SII, su portal de práctica y el negocio. Cada nivel te entrega una pieza del expediente. Toda la información es ficticia; no realizas trámites reales.",
+    "En Villa del Coihue, Camila necesita iniciar las actividades de su restaurante La Mesa del Coihue. Recorrerás el Barrio Cívico, la oficina del SII, su portal de práctica y el negocio. Cada nivel te entrega una pieza del expediente.",
   goal: "Preparar y revisar un aviso simulado de inicio de actividades, distinguir sus canales y reconocer la función de la verificación y de los fiscalizadores.",
   evidence:
-    "Redacta una nota para Camila: qué se comunica al SII, por qué el expediente usa Avenida Coihue 120, qué canal utilizarías y cómo se diferencia el aviso de una eventual verificación. Aclara por qué una constancia del juego no autoriza todos los permisos del restaurante. No incluyas datos personales.",
+    "Redacta una nota para Camila: qué se comunica al SII, por qué el expediente usa Avenida Coihue 120, qué canal utilizarías y cómo se diferencia el aviso de una eventual verificación. Aclara por qué el aviso de inicio no reemplaza los demás permisos del restaurante. No incluyas datos personales.",
   sourceIds: [
     "sii-inicio-actividades",
     "sii-verificacion-actividad",
@@ -255,7 +255,7 @@ export const inicioPlaces = [
     name: "Oficina del SII",
     icon: "🏛️",
     description:
-      "Oficina ficticia del Barrio Cívico: Paula orienta y el equipo fiscalizador coordina sus salidas. No es una dependencia real ni una ruta obligatoria para todos los trámites.",
+      "Oficina del Barrio Cívico: Paula orienta y el equipo fiscalizador coordina sus salidas. La orientación y el trámite por internet son canales complementarios.",
     levels: [1, 3, 4, 6],
   },
   {

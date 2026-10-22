@@ -1,3 +1,4 @@
+import Ranking from "./accounts/Ranking";
 import {Administration} from './Administration';
 import {
   lazy,
@@ -386,7 +387,7 @@ function Layout() {
           <Route path="/como-funciona" element={<HowItWorks />} />
           <Route path="/mi-aprendizaje" element={<LearningEntry />} />
           <Route path="/mi-aprendizaje/rutas/:id" element={<LearningRoute />} />
-          <Route path="/alumno" element={<StudentDashboard />} />
+          <Route path="/alumno" element={<StudentDashboard />} /><Route path="/ranking" element={<Ranking />} />
           <Route path="/institucion" element={<InstitutionalDashboard />} />
           <Route
             path="/docente"

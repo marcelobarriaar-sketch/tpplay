@@ -91,5 +91,6 @@ test("story keeps digital filing and eventual coordinated inspection distinct an
   );
   assert.match(scene, /VILLA DEL COIHUE/);
   assert.match(scene, /fiscalizador/);
-  assert.match(scene, /no presenta declaraciones/);
+  assert.doesNotMatch(scene, /fictici|no presenta declaraciones/i);
+  assert.doesNotMatch(JSON.stringify(inicioMission), /fictici/i);
 });

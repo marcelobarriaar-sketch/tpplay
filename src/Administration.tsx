@@ -298,7 +298,7 @@ export function Administration() {
                         <p>
                           Empieza por una experiencia disponible. Las demás
                           están cerradas porque todavía deben diseñarse,
-                          revisarse y pilotarse; no se desbloquean con XP.
+                          revisarse y pilotarse; no se desbloquean con Coihues.
                         </p>
                         <ol className="curriculum-missions">
                           {items.map((x) => (

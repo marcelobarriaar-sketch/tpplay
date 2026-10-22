@@ -1,9 +1,11 @@
+import { CoinRanking } from "./Ranking";
 import { useEffect, useRef, useState } from "react";
 import { useAccount } from "./Session";
 import { learningApi } from "./client";
 import { AdventureEntry } from "./Account";
 import { Link } from "react-router-dom";
-import type { Progress } from "../games/coihue/progress";
+import { completed, type Progress } from "../games/coihue/progress";
+import { missions as coihueMissions } from "../games/coihue/content";
 import type { GameEvent } from "../../server/learningDomain";
 import CoihueGame from "../games/coihue/Game";
 type Saved = { state: Progress; revision: number; owner?: string };
@@ -125,11 +127,11 @@ export default function CloudGame() {
         </div>
       )}
       {saved && saved.owner === profile.id ? (
-        <CoihueGame
+        <><CoinRanking compact key={coihueMissions.filter(m=>completed(saved.state,m.id)).length}/><CoihueGame
           state={saved.state}
           onEvent={(event) => void send(event)}
           disabled={busy || !!pending}
-        />
+        /></>
       ) : !problem ? (
         <p role="status">Recuperando tu aventura…</p>
       ) : null}

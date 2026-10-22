@@ -104,10 +104,7 @@ export function InicioScene({
           </li>
         </ol>
       </details>
-      <p className="small muted">
-        Simulación educativa independiente. No es un portal del SII, no presenta
-        declaraciones ni acredita una autorización de funcionamiento.
-      </p>
+
     </section>
   );
 }
@@ -125,7 +122,7 @@ export function InicioDocuments({
     <div
       className="inicio-documents"
       role="group"
-      aria-label="Seleccionar antecedentes ficticios"
+      aria-label="Seleccionar antecedentes"
     >
       <p>
         Marca las tarjetas que incorporarías. Puedes combinar varias antes de
@@ -159,14 +156,14 @@ export function InicioBrief() {
   return (
     <section className="panel spaced">
       <p className="eyebrow">VILLA DEL COIHUE · OFICINA DEL SII</p>
-      <h2>La primera apertura</h2>
+      <h2>La primera apertura</h2><p className="small muted">Experiencia educativa de TP PLAY: aquí no se presentan trámites al SII ni se emiten autorizaciones. No ingreses credenciales ni documentos personales.</p>
       <p>
         Ocho niveles de decisiones y un cierre: recibe el encargo, elige el
         canal, describe el negocio, resuelve el calendario, arma una carpeta con
         tarjetas, revisa el portal de práctica y acompaña una visita coordinada.
       </p>
       <p>
-        En la oficina ficticia trabajan Paula, orientadora, y Elena,
+        En la oficina trabajan Paula, orientadora, y Elena,
         fiscalizadora. Las visitas son posibles cuando corresponda, no
         universales. El aviso se realiza por internet como regla general, salvo
         excepciones legales.

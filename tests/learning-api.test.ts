@@ -50,6 +50,7 @@ function fixture(
         order() {
           return builder;
         },
+        range() { return builder; },
         maybeSingle() {
           return Promise.resolve({
             data:
@@ -148,6 +149,9 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
       ).status,
       403,
     );
+    assert.equal((await call(f.handler, "ranking")).status, 200);
+    assert.ok(f.reads.find(r=>r.table==='xp_events')?.filters.some(([k,v])=>k==='profiles.role'&&v==='student'));
+    assert.equal((await call(f.handler, "ranking", {method:'POST'})).status,405);
     assert.equal((await call(f.handler, "courses")).status, 403); // claimed metadata admin is ignored
     assert.equal(
       (await call(f.handler, "progress&student=" + other)).status,
@@ -185,6 +189,7 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
     );
     assert.ok(!f.reads.some((r) => r.table === "evidence"));
     f = fixture("teacher");
+    assert.equal((await call(f.handler, "ranking")).status, 403);
     assert.equal((await call(f.handler, "courses")).status, 200);
     assert.ok(
       f.reads

@@ -1,3 +1,4 @@
+import { CoinRanking } from "./Ranking";
 import { InicioStoryGate, CamilaChapter } from "../games/inicio/story";
 import { InicioScene, InicioDocuments, isInicio } from "../games/inicio/Scene";
 import { useEffect, useRef, useState } from "react";
@@ -155,11 +156,11 @@ function MissionContent({ result }: { result: boolean }) {
         {alert}
         <p className="eyebrow">MISIÓN GUARDADA</p>
         <h1>¡Cada decisión te hace avanzar!</h1>
-        <h2>{mission.title}</h2>
+        <h2>{mission.title}</h2><CoinRanking compact/>
         {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
-          Las recompensas se calculan en el servidor. Consulta tu XP y logros en
+          Las recompensas se calculan en el servidor. Consulta tu Coihues y logros en
           tu aventura.
         </p>
         <p>Intento: {a.id}</p>
@@ -170,7 +171,7 @@ function MissionContent({ result }: { result: boolean }) {
           </p>
         )}
         {saved.xpEarned !== undefined && (
-          <p>{saved.xpEarned} XP acumulados en esta misión.</p>
+          <p>{saved.xpEarned} Coihues acumulados en esta misión.</p>
         )}
         {mission.steps.map((step, i) => (
           <article className="criterion" key={step.title}>

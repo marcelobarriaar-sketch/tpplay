@@ -1,3 +1,4 @@
+import { CoinRanking } from "./Ranking";
 import { useEffect, useState, type ReactNode, type FormEvent } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAccount } from "./Session";
@@ -187,7 +188,7 @@ function StudentContent() {
         <div className="stats-grid">
           <div className="stat">
             <strong>Nivel {Math.floor(data.xp / 200) + 1}</strong>
-            <span>{data.xp} XP</span>
+            <span>{data.xp} Coihues</span>
           </div>
           <div className="stat">
             <strong>{percentage}%</strong>
@@ -214,6 +215,7 @@ function StudentContent() {
           </Link>
         </div>
       </section>
+      <CoinRanking compact/>
       {coihue && !data.imports.some((i) => i.source === "coihue") && (
         <section className="panel spaced">
           <h2>Aventura local de Valle del Coihue</h2>
@@ -257,7 +259,7 @@ function StudentContent() {
           <h2>Tu recorrido anterior sigue aquí</h2>
           <p>
             Encontramos {pending.length} intentos locales. Impórtalos solo si
-            son tuyos. Recalcularemos los resultados y el XP; conservaremos los
+            son tuyos. Recalcularemos los resultados y el Coihues; conservaremos los
             originales.
           </p>
           <button
@@ -278,7 +280,7 @@ function StudentContent() {
               <article className="panel" key={m.slug}>
                 <h3>{m.title}</h3>
                 <p>
-                  {p?.progress_percentage || 0}% · {p?.xp_earned || 0} XP
+                  {p?.progress_percentage || 0}% · {p?.xp_earned || 0} Coihues
                 </p>
                 <Link
                   className="button secondary"
@@ -395,7 +397,7 @@ function ProfileContent() {
       </p>
       {data && (
         <p>
-          {data.xp} XP ·{" "}
+          {data.xp} Coihues ·{" "}
           {data.progress.filter((p) => p.status === "completed").length}{" "}
           misiones completadas
         </p>

@@ -15,7 +15,8 @@ test('Camila has an introduction before decisions, nine story beats, consistent 
  for(let index=0;index<9;index++){
   const html=renderToStaticMarkup(<CamilaChapter index={index}/>);
   assert.match(html,/camila-historia.png/);
-  assert.match(html,/alt="Camila, personaje ficticio/);
+  assert.match(html,/alt="Camila,/);
  }
- assert.match(renderToStaticMarkup(<CamilaChapter ending/>),/no ha presentado un trámite/);
+ assert.match(renderToStaticMarkup(<CamilaChapter ending/>),/permisos que deberá consultar por separado/);
+ assert.doesNotMatch(introduction,/fictici/i);
 });
