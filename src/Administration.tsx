@@ -128,9 +128,12 @@ export function Administration() {
             desarrolla en esta etapa.
           </p>
           <p>
-            11 módulos · 28 experiencias en el roadmap · 3 disponibles para
-            pilotaje · 25 por desarrollar. El mapa está completo como
-            estructura; las misiones aún no cubren todo el programa.
+            11 módulos · {administrationMissions.length} experiencias en el
+            roadmap · {administrationMissions.filter((m) => m.available).length}{" "}
+            disponibles para pilotaje ·{" "}
+            {administrationMissions.filter((m) => !m.available).length} por
+            desarrollar. El mapa está completo como estructura; las misiones aún
+            no cubren todo el programa.
           </p>
           <nav
             className="valley-actions"
@@ -295,7 +298,7 @@ export function Administration() {
                         <p>
                           Empieza por una experiencia disponible. Las demás
                           están cerradas porque todavía deben diseñarse,
-                          revisarse y pilotarse; no se desbloquean con XP.
+                          revisarse y pilotarse; no se desbloquean con Coihues.
                         </p>
                         <ol className="curriculum-missions">
                           {items.map((x) => (
