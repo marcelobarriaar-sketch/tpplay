@@ -1,3 +1,7 @@
+import { BusinessBudget } from "../games/inicio/Budget";
+import { CoinRanking } from "./Ranking";
+import { InicioStoryGate, CamilaChapter } from "../games/inicio/story";
+import { InicioScene, InicioDocuments, isInicio } from "../games/inicio/Scene";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { missions } from "../data";
@@ -153,10 +157,11 @@ function MissionContent({ result }: { result: boolean }) {
         {alert}
         <p className="eyebrow">MISIÓN GUARDADA</p>
         <h1>¡Cada decisión te hace avanzar!</h1>
-        <h2>{mission.title}</h2>
+        <h2>{mission.title}</h2><BusinessBudget attempt={a}/><CoinRanking compact/>
+        {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
-          Las recompensas se calculan en el servidor. Consulta tu XP y logros en
+          Las recompensas se calculan en el servidor. Consulta tu Coihues y logros en
           tu aventura.
         </p>
         <p>Intento: {a.id}</p>
@@ -167,7 +172,7 @@ function MissionContent({ result }: { result: boolean }) {
           </p>
         )}
         {saved.xpEarned !== undefined && (
-          <p>{saved.xpEarned} XP acumulados en esta misión.</p>
+          <p>{saved.xpEarned} Coihues acumulados en esta misión.</p>
         )}
         {mission.steps.map((step, i) => (
           <article className="criterion" key={step.title}>
@@ -217,7 +222,7 @@ function MissionContent({ result }: { result: boolean }) {
     if (await send("complete")) navigate(`/intentos/${a.id}/resultados`);
   }
   return (
-    <div className="player-page">
+    <InicioStoryGate key={a.id} enabled={isInicio(mission.slug) && a.index===0 && !a.confirmed[0]}><div className="player-page">
       {alert}
       <p role="status" className="muted">
         {busy
@@ -264,6 +269,9 @@ function MissionContent({ result }: { result: boolean }) {
           style={{ width: `${(a.index / (mission.steps.length + 1)) * 100}%` }}
         />
       </div>
+      {isInicio(mission.slug) && (
+        <InicioScene key={a.index} index={a.index} confirmed={a.confirmed} />
+      )}
       <section className="panel task-panel">
         <p className="eyebrow">
           ETAPA {a.index + 1} DE {mission.steps.length + 1}
@@ -273,7 +281,13 @@ function MissionContent({ result }: { result: boolean }) {
         <fieldset disabled={busy || !!pending.current}>
           <legend>{step?.prompt || "Tu evidencia final"}</legend>
           {step ? (
-            step.kind === "number" ? (
+            isInicio(mission.slug) && a.index === 4 ? (
+              <InicioDocuments
+                value={value}
+                onChange={setValue}
+                disabled={confirmed || busy || !!pending.current}
+              />
+            ) : step.kind === "number" ? (
               <label className="field">
                 Monto en pesos
                 <input
@@ -313,6 +327,7 @@ function MissionContent({ result }: { result: boolean }) {
               />
             </label>
           )}
+          {step && <BusinessBudget attempt={a} index={a.index} answer={value} confirmed={confirmed}/>}
           {step && confirmed && (
             <p className="feedback" role="status">
               {
@@ -369,11 +384,11 @@ function MissionContent({ result }: { result: boolean }) {
           </div>
         </fieldset>
         {hint && step && <p className="hint">{step.hint}</p>}
-        <p className="muted small">
+        {!step&&<BusinessBudget attempt={a}/>}<p className="muted small">
           Sin tiempo límite. Tu explicación no recibe una nota automática. No
           incluyas datos personales.
         </p>
       </section>
-    </div>
+    </div></InicioStoryGate>
   );
 }

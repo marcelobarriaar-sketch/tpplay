@@ -1,3 +1,4 @@
+import {MissionCurriculum} from '../Administration';
 import { lazy, Suspense, Fragment, type ReactNode } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { Guard } from "./Identity";
@@ -25,7 +26,7 @@ export default function AccountArea() {
   const { pathname } = useLocation();
   const page =
     pathname === "/juegos/mision-tributos" ? (
-      <CloudGame />
+      <><MissionCurriculum slug="mision-tributos"/><CloudGame /></>
     ) : pathname === "/acompanamiento" ? (
       <Guard roles={["teacher", "admin"]}>
         <TeacherPanel />

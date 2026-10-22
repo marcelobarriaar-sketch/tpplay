@@ -1,5 +1,5 @@
 import { missions } from './data.js';
-export type Attempt = { id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
+export type Attempt = { economyVersion?: 1; id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
 export type DemoState = { schema: 1; attempts: Attempt[]; reducedMotion: boolean };
 export const initialState: DemoState = { schema: 1, attempts: [], reducedMotion: false };
 export const STORAGE_KEY = 'tpplay-demo-v1';
@@ -24,7 +24,7 @@ export function summarize(attempts: Attempt[]) {
 export function makeAttempt(slug: string): Attempt {
   const mission = missions.find(m => m.slug === slug);
   if (!mission) throw new Error('Misión no encontrada');
-  return { id: crypto.randomUUID(), missionSlug: slug, version: mission.version, createdAt: new Date().toISOString(), answers: [], confirmed: [], index: 0, evidence: '' };
+  return { ...(slug==='inicio-actividades'?{economyVersion:1 as const}:{}), id: crypto.randomUUID(), missionSlug: slug, version: mission.version, createdAt: new Date().toISOString(), answers: [], confirmed: [], index: 0, evidence: '' };
 }
 export function parseDemoState(value: string): DemoState {
   const parsed = JSON.parse(value);
