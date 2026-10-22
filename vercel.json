@@ -65,16 +65,91 @@
       "destination": "/recursos/programa-administracion/index.html"
     },
     {
-      "source": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria",
-      "destination": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria/index.html"
-    },
-    {
       "source": "/especialidades/agropecuaria/modulos/produccion-vegetal",
       "destination": "/especialidades/agropecuaria/modulos/produccion-vegetal/index.html"
     },
     {
+      "source": "/especialidades/administracion/3-medio",
+      "destination": "/especialidades/administracion/3-medio/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/4-medio",
+      "destination": "/especialidades/administracion/4-medio/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/utilizacion-de-informacion-contable",
+      "destination": "/especialidades/administracion/modulos/utilizacion-de-informacion-contable/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria",
+      "destination": "/especialidades/administracion/modulos/gestion-comercial-y-tributaria/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/procesos-administrativos",
+      "destination": "/especialidades/administracion/modulos/procesos-administrativos/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/atencion-de-clientes",
+      "destination": "/especialidades/administracion/modulos/atencion-de-clientes/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/organizacion-de-oficinas",
+      "destination": "/especialidades/administracion/modulos/organizacion-de-oficinas/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/aplicaciones-informaticas-para-la-gestion-administrativa",
+      "destination": "/especialidades/administracion/modulos/aplicaciones-informaticas-para-la-gestion-administrativa/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/legislacion-laboral",
+      "destination": "/especialidades/administracion/modulos/legislacion-laboral/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/calculo-de-remuneracion-finiquitos-y-obligaciones-laborales",
+      "destination": "/especialidades/administracion/modulos/calculo-de-remuneracion-finiquitos-y-obligaciones-laborales/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/desarrollo-y-bienestar-del-personal",
+      "destination": "/especialidades/administracion/modulos/desarrollo-y-bienestar-del-personal/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/dotacion-de-personal",
+      "destination": "/especialidades/administracion/modulos/dotacion-de-personal/index.html"
+    },
+    {
+      "source": "/especialidades/administracion/modulos/emprendimiento-y-empleabilidad",
+      "destination": "/especialidades/administracion/modulos/emprendimiento-y-empleabilidad/index.html"
+    },
+    {
       "source": "/((?!api/|assets/|images/|favicon.svg|robots.txt|sitemap.xml).*)",
       "destination": "/app.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/especialidades/administracion/modulos/utilizacion-de-la-informacion-contable",
+      "destination": "/especialidades/administracion/modulos/utilizacion-de-informacion-contable",
+      "permanent": true
+    },
+    {
+      "source": "/especialidades/administracion/modulos/servicio-de-atencion-de-clientes",
+      "destination": "/especialidades/administracion/modulos/atencion-de-clientes",
+      "permanent": true
+    },
+    {
+      "source": "/especialidades/administracion/modulos/aplicaciones-informaticas",
+      "destination": "/especialidades/administracion/modulos/aplicaciones-informaticas-para-la-gestion-administrativa",
+      "permanent": true
+    },
+    {
+      "source": "/especialidades/administracion/modulos/calculo-de-remuneraciones",
+      "destination": "/especialidades/administracion/modulos/calculo-de-remuneracion-finiquitos-y-obligaciones-laborales",
+      "permanent": true
+    },
+    {
+      "source": "/especialidades/administracion/modulos/desarrollo-y-bienestar-organizacional",
+      "destination": "/especialidades/administracion/modulos/desarrollo-y-bienestar-del-personal",
+      "permanent": true
     }
   ]
 }

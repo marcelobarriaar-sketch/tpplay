@@ -1,3 +1,4 @@
+import {administrationCommercialName} from './administrationCurriculum.js';
 import { areas, missions, slugify } from "./data.js";
 export type ModuleSettings = {
   id: string;
@@ -12,7 +13,7 @@ export const moduleCatalog = areas.flatMap((area) =>
     areaId: area.id,
     missions: [
       ...(area.id === "administracion" &&
-      name === "Gestión Comercial y Tributaria"
+      name === administrationCommercialName
         ? [
             {
               id: "mision-tributos",
@@ -22,7 +23,7 @@ export const moduleCatalog = areas.flatMap((area) =>
           ]
         : []),
       ...missions
-        .filter((m) => m.area === area.id && m.module === name)
+        .filter((m) => (m.area === area.id && m.module === name) || (area.id === 'administracion' && name === 'Emprendimiento y empleabilidad' && m.slug === 'primera-entrevista'))
         .map((m) => ({ id: m.slug, title: m.title, level: m.level })),
     ],
   })),

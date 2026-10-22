@@ -1,3 +1,4 @@
+import {Administration} from './Administration';
 import {
   lazy,
   Suspense,
@@ -367,6 +368,7 @@ function Layout() {
           <Route path="/" element={<Home />} />
           <Route path="/especialidades" element={<Specialties />} />
           <Route path="/especialidades/:slug" element={<Specialty />} />
+<Route path="/especialidades/administracion/:grado" element={<Administration/>}/>
           <Route
             path="/especialidades/:slug/modulos/:modulo"
             element={<Specialty />}
