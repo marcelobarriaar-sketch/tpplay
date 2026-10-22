@@ -1,0 +1,9 @@
+import {budgetSummary,decisionImpact,type BudgetAttempt} from './economy';
+export function BusinessBudget({attempt,index,answer='',confirmed=false}:{attempt:BudgetAttempt;index?:number;answer?:string;confirmed?:boolean}){
+ if(attempt.missionSlug!=='inicio-actividades')return null;
+ if(attempt.economyVersion!==1)return <p className="muted small">Este intento comenzó antes del presupuesto. Inicia un nuevo intento para gestionar los recursos de Camila; tu progreso se conserva.</p>;
+ const summary=budgetSummary(attempt),impact=index===undefined?null:decisionImpact(index,answer);
+ return <section className="panel business-budget" aria-label="Presupuesto de Camila"><p className="eyebrow">CAJA DEL NEGOCIO · CAMILA</p><h2>◈ {summary.balance} Coihues disponibles</h2><p>Partiste con {summary.initial}. Gastos de gestión: <strong>{summary.spent} Coihues</strong>. Este presupuesto es independiente de tus recompensas por aprender.</p><p className="small muted">Los costos son reglas del caso: representan tiempo, traslados y trabajo adicional; no son tarifas ni multas del SII. Consultar pistas no tiene costo.</p>
+ {impact&&<div role="status" className={confirmed&&impact.cost?'feedback review':'case-note'}><strong>{confirmed?(impact.cost?`Gasto confirmado: −${impact.cost} Coihues`:'Sin gasto adicional'):(impact.cost?`Si confirmas: −${impact.cost} Coihues`:'Si confirmas: sin gasto adicional')}</strong><p>{impact.reason}</p><p><strong>Siguiente paso:</strong> {impact.repair}</p>{!confirmed&&<p className="small">Puedes revisar tu selección antes de confirmar. Cambiarla o recargar no descuenta dinero.</p>}</div>}
+ <details><summary>Ver movimientos de la caja</summary>{summary.entries.length?<ol>{summary.entries.map(e=><li key={e.index}>Etapa {e.index+1}: {e.cost?`−${e.cost}`:'0'} Coihues · {e.reason}</li>)}</ol>:<p>Todavía no has confirmado decisiones.</p>}</details></section>;
+}

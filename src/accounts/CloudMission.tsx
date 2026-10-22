@@ -1,3 +1,4 @@
+import { BusinessBudget } from "../games/inicio/Budget";
 import { CoinRanking } from "./Ranking";
 import { InicioStoryGate, CamilaChapter } from "../games/inicio/story";
 import { InicioScene, InicioDocuments, isInicio } from "../games/inicio/Scene";
@@ -156,7 +157,7 @@ function MissionContent({ result }: { result: boolean }) {
         {alert}
         <p className="eyebrow">MISIÓN GUARDADA</p>
         <h1>¡Cada decisión te hace avanzar!</h1>
-        <h2>{mission.title}</h2><CoinRanking compact/>
+        <h2>{mission.title}</h2><BusinessBudget attempt={a}/><CoinRanking compact/>
         {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
@@ -326,6 +327,7 @@ function MissionContent({ result }: { result: boolean }) {
               />
             </label>
           )}
+          {step && <BusinessBudget attempt={a} index={a.index} answer={value} confirmed={confirmed}/>}
           {step && confirmed && (
             <p className="feedback" role="status">
               {
@@ -382,7 +384,7 @@ function MissionContent({ result }: { result: boolean }) {
           </div>
         </fieldset>
         {hint && step && <p className="hint">{step.hint}</p>}
-        <p className="muted small">
+        {!step&&<BusinessBudget attempt={a}/>}<p className="muted small">
           Sin tiempo límite. Tu explicación no recibe una nota automática. No
           incluyas datos personales.
         </p>

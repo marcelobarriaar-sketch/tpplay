@@ -10,6 +10,7 @@ export function missionFor(slug: unknown) {
 export function freshAttempt(id: string, slug: string): Attempt {
   const m = missionFor(slug);
   return {
+    ...(m.slug === "inicio-actividades" ? {economyVersion:1 as const} : {}),
     id,
     missionSlug: m.slug,
     version: m.version,

@@ -1,3 +1,4 @@
+import { budgetSummary, decisionImpact } from "../src/games/inicio/economy.js";
 import { createHash } from 'node:crypto';
 export type Reward = {student_id:string;amount:number;created_at:string};
 export function rankingSummary(events:Reward[],actor:string){
@@ -14,4 +15,15 @@ export function rankingSummary(events:Reward[],actor:string){
  const alias=(id:string)=>`Vecino ${createHash('sha256').update('tpplay-ranking:'+id).digest('hex').slice(0,12).toUpperCase()}`;
  const rows=[...totals].filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]||alias(a[0]).localeCompare(alias(b[0])));
  return {currency:'Coihues',total:rows.length,updatedAt:new Date().toISOString(),you:{alias:alias(actor),coins:score,position,previousPosition:before,movement:position!==null&&before!==null?before-position:null,referenceAt:latest},rows:rows.slice(0,50).map(([id,coins])=>({alias:alias(id),coins,position:rank(totals,id),isYou:id===actor}))};
+}
+
+export type ManagedAttempt={id:string;student_id:string;completed_at:string;economyVersion:string|number;answers:unknown;confirmed:unknown};
+export function managementRewards(attempts:ManagedAttempt[]):Reward[]{
+ const best=new Map<string,number>();const events:Reward[]=[];
+ for(const a of [...attempts].sort((a,b)=>a.completed_at.localeCompare(b.completed_at)||a.id.localeCompare(b.id))){
+  if(Number(a.economyVersion)!==1||!Array.isArray(a.answers)||!Array.isArray(a.confirmed)||a.confirmed.length!==8||!a.confirmed.every(v=>v===true)||a.answers.length!==8||!a.answers.every((v,i)=>typeof v==='string'&&decisionImpact(i,v)!==null))continue;
+  const balance=budgetSummary({missionSlug:'inicio-actividades',answers:a.answers,confirmed:a.confirmed}).balance;
+  const previous=best.get(a.student_id)||0;if(balance>previous){events.push({student_id:a.student_id,amount:balance-previous,created_at:a.completed_at});best.set(a.student_id,balance);}
+ }
+ return events;
 }

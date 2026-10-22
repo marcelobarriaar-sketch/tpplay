@@ -51,6 +51,7 @@ function fixture(
           return builder;
         },
         range() { return builder; },
+        not() { return builder; },
         maybeSingle() {
           return Promise.resolve({
             data:

@@ -1,4 +1,4 @@
-import { rankingSummary, type Reward } from "./ranking.js";
+import { rankingSummary, managementRewards, type ManagedAttempt, type Reward } from "./ranking.js";
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Profile } from "../src/accounts/model.js";
@@ -136,7 +136,18 @@ export async function identityAction(
       if (!batch || batch.length<1000) break;
       demand(offset<99000, "El ranking necesita una consulta agregada para este volumen. No se muestran resultados parciales.", 503);
     }
-    return rankingSummary(events, actor.id);
+    const attempts: ManagedAttempt[] = [];
+    for(let offset=0;;offset+=1000){
+      const batch=await read(db.from("mission_attempts")
+        .select("id,student_id,completed_at,economyVersion:state->>economyVersion,answers:state->answers,confirmed:state->confirmed,profiles!inner(role,status)")
+        .eq("mission_id","inicio-actividades").eq("source","server")
+        .eq("state->>economyVersion","1").not("completed_at","is",null)
+        .eq("profiles.role","student").eq("profiles.status","active")
+        .order("completed_at").order("id").range(offset,offset+999));
+      attempts.push(...(batch||[]));if(!batch||batch.length<1000)break;
+      demand(offset<99000,"No se muestran resultados parciales de gestión.",503);
+    }
+    return {...rankingSummary(events, actor.id),management:rankingSummary(managementRewards(attempts),actor.id)};
   }
   if (action === "dashboard") {
     demand(

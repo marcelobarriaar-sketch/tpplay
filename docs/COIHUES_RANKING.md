@@ -13,3 +13,13 @@ Ruta privada `/ranking`, acceso desde Mi aventura y desde resultados; resumen al
 Relatos: se eliminan interrupciones sobre ficción del caso de Camila y de las otras narraciones. La ficha y las fuentes generales conservan la explicación educativa y el alcance del portal.
 
 Verificación pendiente de integración: la Preview no tiene configuradas las variables de Supabase. La API y su autorización se verifican mediante adaptador de proveedor aislado; no se presenta el ranking con cuentas reales como operativo hasta comprobar esa conexión. Producción permanece sin cambios.
+
+## Presupuesto y consecuencias · actualización
+
+Inicio de actividades incorpora caja inicial de 300 Coihues independiente de las recompensas personales. Cada opción tiene impacto y corrección definidos; las 16 combinaciones de documentos suman costos por antecedentes faltantes, domicilio descartado y credencial. La selección anticipa el gasto; solo las respuestas confirmadas afectan el saldo. El saldo se deriva de respuestas guardadas, nunca de un importe enviado por el cliente. Recargas, confirmaciones repetidas y reintentos de red no multiplican gastos. No se cobran Coihues por pistas.
+
+Los costos son parámetros del caso para representar traslados, demoras, correcciones y protección de accesos; no equivalen a montos legales, tarifas del SII ni multas automáticas. El libro de caja explica causa y siguiente paso. Un nuevo intento tiene un presupuesto nuevo; no elimina los resultados anteriores.
+
+Los intentos nuevos llevan `economyVersion: 1` dentro del estado ya persistido; los intentos antiguos se conservan sin descuentos retroactivos e indican que se debe iniciar otro intento para jugar con presupuesto. No requiere nuevas tablas ni migraciones. La lógica financiera queda versionada para no cambiar costos de intentos anteriores en futuras ediciones.
+
+Se agrega clasificación de gestión, separada de participación: mayor presupuesto conservado en una misión completa de Inicio de actividades, limitado a 300 por estudiante, sin sumar partidas repetidas. Solo participan intentos nuevos terminados y guardados por el servidor; se excluyen importaciones y versiones anteriores. Se permite mejorar mediante otro intento. La API reconstruye el mejor resultado desde respuestas/confirmaciones y no consulta explicaciones escritas ni acepta saldos del cliente. El movimiento se reconstruye desde la primera gestión y posteriores mejoras; una repetición peor no borra el mejor resultado.

@@ -130,7 +130,7 @@ export const inicioSteps: Step[] = [
   {
     title: "El reloj del expediente",
     context:
-      "El caso fija el primer acto necesario para desarrollar la actividad, generador de impuestos, el 12 de septiembre de 2026. El aviso se presenta dentro de los dos meses siguientes al mes de inicio. Es un calendario de aprendizaje, sin cuenta regresiva ni multas simuladas.",
+      "El caso fija el primer acto necesario para desarrollar la actividad, generador de impuestos, el 12 de septiembre de 2026. El aviso se presenta dentro de los dos meses siguientes al mes de inicio. Camila necesita planificar su tiempo y los recursos de gestión.",
     prompt: "¿Qué fecha límite corresponde a este caso?",
     options: [
       "30 de septiembre de 2026",
