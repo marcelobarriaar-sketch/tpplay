@@ -1,3 +1,4 @@
+import { CamilaChapter } from "./story";
 import { useState } from "react";
 import {
   inicioPlaces,
@@ -23,6 +24,7 @@ export function InicioScene({
       className="inicio-scene"
       aria-label="Villa del Coihue: recorrido del expediente"
     >
+      <CamilaChapter index={index} />
       <div className="inicio-scene-heading">
         <div>
           <p className="eyebrow">VILLA DEL COIHUE · BARRIO CÍVICO</p>

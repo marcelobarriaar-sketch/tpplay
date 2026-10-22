@@ -39,3 +39,11 @@ Recorrido local de invitado probado a 390 × 844: ocho decisiones, evidencia, re
 El jugador autenticado integra los mismos controles en CloudMission y conserva el API/RPC existente; no se agregan tablas ni migraciones. El guardado autenticado de esta misión no se ha probado extremo a extremo en Preview: faltan allí las variables de Supabase. No se presenta como verificado.
 
 Entrega por rama y Preview dependiente del PR #9. No se publica en producción ni se fusiona automáticamente. Pendiente pilotaje docente y validación con estudiantes.
+
+## Narrativa visual · 22 de octubre de 2026
+
+La misión incorpora un prólogo antes de la primera decisión, nueve escenas y un epílogo. Camila conserva rostro y rasgos; cambia entre delantal, chaqueta con carpeta y regreso al restaurante. La lectura inicial no otorga XP ni modifica respuestas. Un intento ya avanzado continúa en su etapa. Si se recarga antes de confirmar la primera decisión se vuelve a ofrecer el prólogo. El epílogo no presupone que las respuestas hayan sido correctas ni que existan permisos aprobados.
+
+Patrón para próximas misiones: personaje con identidad estable, deseo y conflicto situado en Villa del Coihue; encargo explícito al estudiante; escenas vinculadas a cada etapa; cambios visuales justificados por la actividad; desenlace que distingue avance del relato y logro evaluado. Las otras misiones conservan su contenido actual y requieren adaptación individual, no se declaran convertidas.
+
+Ilustración generada con la herramienta integrada de imagegen, sin API externa configurada por el usuario. Archivo del proyecto: `public/images/camila-historia.png`. Prompt: triptico horizontal de tres paneles iguales, misma mujer ficticia chilena Camila Soto de unos 32 años, piel morena cálida, rostro ovalado, ojos oscuros, pelo rizado recogido, aros pequeños turquesa; ilustración editorial cálida. Izquierda: delantal terracota sobre camisa crema en restaurante de madera y plantas; centro: chaqueta turquesa y carpeta ocre en oficina cívica; derecha: regreso al restaurante con delantal y carpeta sobre mostrador. Mantener identidad y proporciones; sin texto, logos, emblemas oficiales ni marcas de agua. Se integran los tres encuadres mediante CSS sin modificar el retrato.

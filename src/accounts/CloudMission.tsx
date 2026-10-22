@@ -1,3 +1,4 @@
+import { InicioStoryGate, CamilaChapter } from "../games/inicio/story";
 import { InicioScene, InicioDocuments, isInicio } from "../games/inicio/Scene";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -155,6 +156,7 @@ function MissionContent({ result }: { result: boolean }) {
         <p className="eyebrow">MISIÓN GUARDADA</p>
         <h1>¡Cada decisión te hace avanzar!</h1>
         <h2>{mission.title}</h2>
+        {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
           Las recompensas se calculan en el servidor. Consulta tu XP y logros en
@@ -218,7 +220,7 @@ function MissionContent({ result }: { result: boolean }) {
     if (await send("complete")) navigate(`/intentos/${a.id}/resultados`);
   }
   return (
-    <div className="player-page">
+    <InicioStoryGate key={a.id} enabled={isInicio(mission.slug) && a.index===0 && !a.confirmed[0]}><div className="player-page">
       {alert}
       <p role="status" className="muted">
         {busy
@@ -384,6 +386,6 @@ function MissionContent({ result }: { result: boolean }) {
           incluyas datos personales.
         </p>
       </section>
-    </div>
+    </div></InicioStoryGate>
   );
 }
