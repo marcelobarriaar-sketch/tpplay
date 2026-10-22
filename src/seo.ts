@@ -1,3 +1,4 @@
+import { publicMissions } from "./publication";
 import {administrationModules,modulePath} from './administrationCurriculum';
 import { areas, missions, resources, slugify } from './data';
 export const siteOrigin = 'https://www.tpplay.cl';
@@ -11,7 +12,7 @@ export const seoPages: SeoPage[] = [
 {path:'/como-funciona',title:'Cómo aprender con desafíos técnico profesionales | TP PLAY',description:'Elige una misión, toma decisiones, entiende tus resultados y vuelve a intentarlo. Conoce cómo usar los desafíos educativos de TP PLAY.',label:'Cómo funciona'},
 {path:'/ayuda',title:'Ayuda y contacto de TP PLAY | Marcelo Barría Arismendi',description:'Aprende a usar TP PLAY y contacta a su creador, el docente técnico profesional Marcelo Barría Arismendi, desde la Región de Los Lagos, Chile.',label:'Ayuda'},
 ...areas.map(a=>({path:`/especialidades/${a.id}`,title:`${a.fullName} | TP PLAY Chile`,description:a.description+' Explora sus módulos y la disponibilidad de desafíos educativos de demostración para estudiantes técnico profesionales.',label:a.name})),
-...missions.map(m=>({path:`/desafios/${m.slug}`,title:`${m.title}: actividad técnico profesional | TP PLAY`,description:m.subtitle+' '+m.goal,label:m.title})),
+...publicMissions(missions).map(m=>({path:`/desafios/${m.slug}`,title:`${m.title}: actividad técnico profesional | TP PLAY`,description:m.subtitle+' '+m.goal,label:m.title})),
 ...resources.map(r=>({path:`/recursos/${r.slug}`,title:`${r.title} | Biblioteca TP PLAY`,description:r.description,label:r.title})),
 ...areas.flatMap(a=>a.modules.filter(module=>a.id!=='administracion'&&missions.some(m=>m.area===a.id&&m.module===module)).map(module=>({path:`/especialidades/${a.id}/modulos/${slugify(module)}`,title:`${module} | ${a.name} | TP PLAY`,description:`Explora la misión de demostración de ${module} en ${a.fullName}. Actividad educativa con decisiones, pistas y evidencia final.`,label:module})))
 ,

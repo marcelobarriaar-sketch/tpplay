@@ -218,6 +218,8 @@ export const inicioSteps: Step[] = [
   },
 ];
 export const inicioMission: Mission = {
+  publication: "published",
+  publishedAt: "2026-10-22",
   slug: inicioSlug,
   title: "La primera apertura: expediente Coihue",
   subtitle: "Un negocio, dos puertas y una carpeta que debes reconstruir.",

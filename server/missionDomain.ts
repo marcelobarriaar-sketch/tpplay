@@ -3,7 +3,7 @@ import { scoreAttempt, type Attempt } from "../src/progress.js";
 import { demand, text } from "./learningDomain.js";
 export type MissionEvent = { type: string; value?: unknown };
 export function missionFor(slug: unknown) {
-  const m = missions.find((m) => m.slug === slug);
+  const m = missions.find((m) => m.slug === slug && m.publication === "published");
   demand(m, "Misión no disponible.", 404);
   return m;
 }

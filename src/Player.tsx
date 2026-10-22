@@ -11,7 +11,7 @@ import { makeAttempt, scoreAttempt, summarize, type Attempt } from './progress';
 import { DemoNote, Empty, PageHead, ButtonLink } from './ui';
 
 export function Player() {
-  const { slug } = useParams(); const mission = missions.find(m => m.slug === slug);
+  const { slug } = useParams(); const mission = missions.find(m => m.slug === slug && m.publication === 'published');
   const store = useDemo(); const navigate = useNavigate(); const [attemptId, setAttemptId] = useState<string>(); const [showHint, setShowHint] = useState(false); const [error, setError] = useState('');
   useEffect(() => {
     if (!mission) return;
