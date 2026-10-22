@@ -6,7 +6,7 @@ import {CamilaChapter, InicioStoryGate, camilaChapters} from '../src/games/inici
 test('Camila has an introduction before decisions, nine story beats, consistent art and an honest ending',()=>{
  const introduction=renderToStaticMarkup(<InicioStoryGate enabled><div>DECISION_TEST</div></InicioStoryGate>);
  assert.match(introduction,/Camila tiene un sueño/);
- assert.match(introduction,/Aceptar el encargo de Camila/);
+ assert.match(introduction,/Comenzar a jugar/);
  assert.doesNotMatch(introduction,/DECISION_TEST/);
  assert.match(renderToStaticMarkup(<InicioStoryGate enabled={false}><div>DECISION_TEST</div></InicioStoryGate>),/DECISION_TEST/);
  assert.equal(camilaChapters.length,9);

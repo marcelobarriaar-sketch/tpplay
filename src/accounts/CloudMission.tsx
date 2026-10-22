@@ -138,14 +138,13 @@ function MissionContent({ result }: { result: boolean }) {
         {alert}
         <p className="eyebrow">VALLE DEL COIHUE</p>
         <h1>{mission.title}</h1>
-        <p>{mission.context}</p>
-        <button
+        <div className="mission-start-bar"><p>Tu avance se guarda en tu cuenta.</p><button
           className="button"
           disabled={busy}
           onClick={() => void send("start")}
         >
-          Comenzar misión y guardar en mi cuenta
-        </button>
+          Comenzar a jugar
+        </button></div><p>{mission.context}</p>
       </section>
     );
   const a = saved.state,

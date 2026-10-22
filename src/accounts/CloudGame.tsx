@@ -127,11 +127,11 @@ export default function CloudGame() {
         </div>
       )}
       {saved && saved.owner === profile.id ? (
-        <><CoinRanking compact key={coihueMissions.filter(m=>completed(saved.state,m.id)).length}/><CoihueGame
+        <><CoihueGame
           state={saved.state}
           onEvent={(event) => void send(event)}
           disabled={busy || !!pending}
-        /></>
+        /><CoinRanking compact key={coihueMissions.filter(m=>completed(saved.state,m.id)).length}/></>
       ) : !problem ? (
         <p role="status">Recuperando tu aventura…</p>
       ) : null}
