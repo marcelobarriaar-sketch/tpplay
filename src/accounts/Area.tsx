@@ -9,6 +9,7 @@ import {
   MyAccount,
   AccountPrivacy,
 } from "./Account";
+const StudentActivation = lazy(() => import("./StudentActivation"));
 const CloudGame = lazy(() => import("./CloudGame"));
 const TeacherPanel = lazy(() => import("./TeacherPanel"));
 const AdminAccounts = lazy(() => import("./AdminAccounts"));
@@ -25,7 +26,7 @@ function IdentityBoundary({ children }: { children: ReactNode }) {
 export default function AccountArea() {
   const { pathname } = useLocation();
   const page =
-    pathname === "/juegos/mision-tributos" ? (
+    pathname === "/cuenta/activar" ? (<StudentActivation />) : pathname === "/juegos/mision-tributos" ? (
       <><MissionCurriculum slug="mision-tributos"/><CloudGame /></>
     ) : pathname === "/acompanamiento" ? (
       <Guard roles={["teacher", "admin"]}>
