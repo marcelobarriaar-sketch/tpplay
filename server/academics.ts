@@ -48,7 +48,18 @@ export async function academicCatalog(
     readAcademic(db.from("grading_scales").select("*").order("mission_id")),
     readAcademic(db.from("challenge_subjects").select("*")),
   ]);
-  const assignments = groups?.length ? await readAcademic(db.from("teaching_assignments").select("group_id,subject_id").in("group_id",(groups||[]).map(g=>g.id)).eq("status","approved")) : [];
+  const assignments = groups?.length
+    ? await readAcademic(
+        db
+          .from("teaching_assignments")
+          .select("group_id,subject_id")
+          .in(
+            "group_id",
+            (groups || []).map((g) => g.id),
+          )
+          .eq("status", "approved"),
+      )
+    : [];
   return {
     subjects,
     groups,
@@ -114,13 +125,13 @@ export async function academicAction(
       readAcademic(
         db
           .from("teaching_assignments")
-          .select("*,class_groups(*,schools(name)),subjects(name)")
+          .select("*,class_groups(*,schools(name,cities(name))),subjects(name)")
           .eq("teacher_id", actor.id),
       ),
       readAcademic(
         db
           .from("academic_enrollments")
-          .select("*,class_groups(*,schools(name)),subjects(name)")
+          .select("*,class_groups(*,schools(name,cities(name))),subjects(name)")
           .eq("student_id", actor.id),
       ),
     ]);
@@ -153,7 +164,7 @@ export async function academicAction(
         db
           .from("teaching_assignments")
           .select(
-            "*,profiles!teaching_assignments_teacher_id_fkey(name,email),class_groups(*,schools(name)),subjects(name)",
+            "*,profiles!teaching_assignments_teacher_id_fkey(name,email),class_groups(*,schools(name,cities(name))),subjects(name)",
           )
           .order("created_at", { ascending: false })
           .limit(500),
@@ -267,7 +278,7 @@ export async function academicAction(
   const assignment = await readAcademic(
     db
       .from("teaching_assignments")
-      .select("*,class_groups(*,schools(name)),subjects(name)")
+      .select("*,class_groups(*,schools(name,cities(name))),subjects(name)")
       .eq("id", uuid(params.get("assignment")))
       .maybeSingle(),
   );
@@ -282,7 +293,7 @@ export async function academicAction(
     db
       .from("academic_enrollments")
       .select(
-        "id,student_id,profiles!academic_enrollments_student_id_fkey(id,name),class_groups(*,schools(name)),subjects(name)",
+        "id,student_id,profiles!academic_enrollments_student_id_fkey(id,name),class_groups(*,schools(name,cities(name))),subjects(name)",
       )
       .eq("group_id", assignment.group_id)
       .eq("subject_id", assignment.subject_id),

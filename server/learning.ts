@@ -207,7 +207,7 @@ export function learningHandler(
       if (action === "registry") {
         const [cities, schools] = await Promise.all([
           result(db.from("cities").select("id,name").order("name")),
-          result(db.from("schools").select("id,name,city_id").order("name")),
+          result(db.from("schools").select("id,name,city_id").is("merged_into_id", null).order("name")),
         ]);
         return send(200, { cities, schools });
       }
@@ -361,7 +361,7 @@ export function learningHandler(
         return send(200, { ok: true });
       }
       if (action === "schoolRequest") {
-        requireRole(actor, "student");
+        requireRole(actor, "student", "teacher");
         const city = uuid(b.city_id);
         demand(
           await result(

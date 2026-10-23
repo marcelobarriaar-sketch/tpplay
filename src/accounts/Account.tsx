@@ -540,8 +540,7 @@ export function MyAccount() {
               Establecimiento solicitado: {r.name}. Pendiente de revisión.
             </p>
           ))}
-          {!profile.school_id &&
-            profile.role === "student" &&
+          {((!profile.school_id && profile.role === "student") || profile.role === "teacher") &&
             !data.requests.length && (
               <form
                 className="account-form spaced"
