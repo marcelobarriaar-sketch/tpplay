@@ -399,7 +399,7 @@ export default function AdminAccounts() {
         ))}
       </section>
       <section className="panel spaced">
-        <h2>Registro de ciudades y establecimientos</h2>
+        <h2>Registro de comunas y establecimientos</h2>
         <form
           className="account-form"
           onSubmit={(e) => {
@@ -409,7 +409,7 @@ export default function AdminAccounts() {
           }}
         >
           <label className="field">
-            Nueva ciudad
+            Nueva comuna
             <input name="name" minLength={2} maxLength={120} required />
           </label>
           <button className="button secondary" disabled={busy}>
@@ -428,8 +428,9 @@ export default function AdminAccounts() {
           }}
         >
           <label className="field">
-            Ciudad
-            <select name="city" required>
+            Comuna del establecimiento
+            <select name="city" required defaultValue="">
+              <option value="" disabled>Selecciona la comuna correcta</option>
               {registry.cities.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
