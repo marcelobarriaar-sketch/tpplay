@@ -1,3 +1,4 @@
+import { AcademicDashboard } from './AcademicDashboard';
 import { EvaluationCard } from "../games/inicio/EvaluationCard";
 import type { Attempt } from "../progress";
 type MissionEvidence = {id:string;state:Attempt;last_activity_at:string;source:string};
@@ -120,6 +121,7 @@ export default function TeacherPanel() {
         <Link to="/cuenta">Volver a mi cuenta</Link>
       </section>
     );
+  if(profile.role==='teacher')return <AcademicDashboard/>;
   const run = async (
     work: () => Promise<unknown>,
     success = "Cambio guardado.",
@@ -197,6 +199,7 @@ export default function TeacherPanel() {
   );
   return (
     <>
+      <AcademicDashboard/>
       <section className="panel">
         <p className="eyebrow">TP PLAY DOCENTE</p>
         <h1>Bienvenido/a, {profile.first_name || profile.name}</h1>

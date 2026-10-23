@@ -1,3 +1,4 @@
+import { AcademicFields } from './AcademicSetup';
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { authClient, learningApi, rememberSession } from "./client";
@@ -81,6 +82,7 @@ export function AccountAccess() {
         ? "recover"
         : "login";
   const { session, profile, recovery, refresh } = useAccount();
+  const [registrationRole,setRegistrationRole]=useState("student"),[academicData,setAcademicData]=useState<unknown>();
   const [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
     [error, setError] = useState("");
@@ -131,6 +133,7 @@ export function AccountAccess() {
               last_name: String(f.get("last_name")),
               initial_role,
               terms_version: "2026-10",
+              academic_setup: academicData,
             },
           },
         });
@@ -237,11 +240,12 @@ export function AccountAccess() {
             </label>
             <label className="field">
               Quiero ingresar como
-              <select name="role" required>
+              <select name="role" required value={registrationRole} onChange={e=>setRegistrationRole(e.target.value)}>
                 <option value="student">Estudiante</option>
                 <option value="teacher">Docente</option>
               </select>
             </label>
+            <AcademicFields role={registrationRole} onChange={setAcademicData}/>
           </>
         )}
         {!(mode === "recover" && session && recovery) && (

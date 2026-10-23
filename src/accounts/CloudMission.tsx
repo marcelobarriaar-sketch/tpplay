@@ -1,3 +1,4 @@
+import { AcademicGate } from './AcademicSetup';
 import { EvaluationCard } from "../games/inicio/EvaluationCard";
 import { evidenceOutcome } from "../games/inicio/evaluation";
 import { CamilaEvidence } from "../games/inicio/Evidence";
@@ -20,9 +21,10 @@ type Saved = {
   attempts?: number;
 };
 export default function CloudMission({ result = false }: { result?: boolean }) {
+  const {slug}=useParams();
   return (
     <Guard roles={["student"]}>
-      <MissionContent result={result} />
+      {result ? <MissionContent result={result}/> : <AcademicGate mission={slug||""}><MissionContent result={result}/></AcademicGate>}
     </Guard>
   );
 }

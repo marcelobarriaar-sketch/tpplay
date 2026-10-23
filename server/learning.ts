@@ -1,3 +1,4 @@
+import { academicAction, academicCatalog, requireAcademicContext, academicGamePerformance } from './academics.js';
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createHash, randomBytes } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -163,6 +164,7 @@ export function learningHandler(
         405,
       );
       const writeActions = [
+        "academicSetup", "academicSelect", "academicApprove", "academicScale", "academicLink",
         "identityProfile",
         "missionEvent",
         "importLocal",
@@ -201,6 +203,7 @@ export function learningHandler(
           415,
         );
       }
+      if (action === "academicCatalog") return send(200,await academicCatalog(db,new URL(req.url || "/", origin).searchParams.get("school")));
       if (action === "registry") {
         const [cities, schools] = await Promise.all([
           result(db.from("cities").select("id,name").order("name")),
@@ -287,6 +290,8 @@ export function learningHandler(
           403,
         );
       }
+      const academic = await academicAction(db, actor, action, b, params);
+      if(academic!==null)return send(200,academic);
       const identity = await identityAction(db, actor, action, b, params);
       if (identity !== null) return send(200, identity);
       if (action === "me") {
@@ -459,12 +464,13 @@ export function learningHandler(
               step,
             };
           });
+        await requireAcademicContext(db,actor,game);
         const commit = await db.rpc("commit_game", {
           p_student: actor.id,
           p_game: game,
           p_version: contentVersion,
           p_revision: b.revision,
-          p_state: reduced.state,
+          p_state: {...reduced.state,academicPerformance:academicGamePerformance(reduced.state)},
           p_event_id: b.event_id,
           p_event: event,
           p_details: { ...reduced.details, missions: projection },
@@ -479,6 +485,7 @@ export function learningHandler(
         return send(200, commit.data);
       }
       requireRole(actor, "teacher", "admin");
+      demand(actor.role!=="teacher" || !["roster","csv","evidence","evaluation"].includes(action||""), "Utiliza Mi panel académico: el acceso requiere curso y asignatura validados.",403);
       if (action === "courses") {
         let query = db.from("courses").select("*").order("name");
         if (actor.role !== "admin") query = query.eq("teacher_id", actor.id);

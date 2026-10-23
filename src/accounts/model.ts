@@ -1,6 +1,7 @@
 export type Role = "student" | "teacher" | "institution_admin" | "admin";
 export type Profile = {
   id: string;
+  active_enrollment_id?: string | null;
   name: string;
   role: Role;
   active: boolean;
