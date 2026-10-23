@@ -12,18 +12,20 @@ export function EvaluationCard({
   const best = bestEvaluation(history),
     latest = history.at(-1);
   if (!best || !latest) return null;
+  const final = best.total >= 80 || history.length >= 3;
+  const display = final ? best : latest;
   const title =
     best.total >= 80
       ? "✅ ¡Excelente trabajo!"
       : history.length >= 3
         ? "Misión completada con apoyo"
-        : latest.total >= 60
+        : display.total >= 60
           ? "🟡 Vas por buen camino"
           : "🔴 Revisemos antes de continuar";
   const message =
     best.total >= 80
       ? "Tu explicación demuestra que comprendiste los principales pasos que Camila debe considerar para comenzar formalmente su actividad."
-      : latest.total >= 60
+      : display.total >= 60
         ? "Comprendiste gran parte del proceso, pero hay algunos aspectos que podrías explicar mejor."
         : "Tu respuesta todavía necesita incorporar algunos elementos importantes para ayudar correctamente a Camila.";
   return (
@@ -43,7 +45,7 @@ export function EvaluationCard({
       <h3>{title}</h3>
       <p>{message}</p>
       <ul>
-        {latest.criteria.map((c) => (
+        {display.criteria.map((c) => (
           <li key={c.id}>
             {c.points === 20 ? "✅" : c.points >= 10 ? "🟡" : "→"} {c.title}:{" "}
             {c.points}/20
@@ -53,13 +55,22 @@ export function EvaluationCard({
       {latest !== best && (
         <p>
           Conservas el mejor resultado del intento {best.attempt}: {best.total}
-          /100. El desglose y las pistas corresponden a tu última respuesta.
+          /100. El desglose y las pistas corresponden a tu{" "}
+          {final ? "mejor" : "última"} respuesta.
         </p>
       )}
+      {final && best !== latest && (
+        <details>
+          <summary>Ver la respuesta de tu mejor resultado</summary>
+          <blockquote style={{ whiteSpace: "pre-wrap" }}>
+            {best.response}
+          </blockquote>
+        </details>
+      )}
       <h3>Lo que hiciste bien</h3>
-      {latest.strengths.length ? (
+      {display.strengths.length ? (
         <ul>
-          {latest.strengths.map((s) => (
+          {display.strengths.map((s) => (
             <li key={s}>✓ {s}</li>
           ))}
         </ul>
@@ -69,11 +80,11 @@ export function EvaluationCard({
           mejor las ideas del recorrido.
         </p>
       )}
-      {latest.improvements.length > 0 && (
+      {display.improvements.length > 0 && (
         <>
           <h3>Puedes mejorar</h3>
           <ul>
-            {latest.improvements.map((s) => (
+            {display.improvements.map((s) => (
               <li key={s}>→ {s}</li>
             ))}
           </ul>

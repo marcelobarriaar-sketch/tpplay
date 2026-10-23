@@ -81,7 +81,12 @@ export const contextualEvaluator: EvidenceEvaluator = {
     const relation =
       /\b(es|son|sera|esta|estan|funciona\w*|atiende\w*|vende\w*|prepara\w*|comienza\w*|inicia\w*|avis\w*|comunic\w*|inform\w*|declar\w*|registr\w*|identific\w*|indica\w*|corresponde\w*|necesita\w*|requiere\w*|debe\w*|tiene\w*|realiz\w*|har\w*|haria|us\w*|utiliz\w*|entr\w*|acced\w*|tramita\w*|present\w*|revis\w*|comprob\w*|control\w*|valid\w*|inspecc\w*|verific\w*|permite\w*|autoriza\w*|sustitu\w*|reemplaza\w*|obtien\w*|conseguir|pedir|solicitar|falta\w*|queda\w*)\b/;
     const explained = clauses.filter(
-      (s) => s.split(/\s+/).length >= 6 && relation.test(s) && !/^(que informacion|por que|que medio|cual es la diferencia|escribe|redacta|en tu respuesta)/.test(s),
+      (s) =>
+        s.split(/\s+/).length >= 6 &&
+        relation.test(s) &&
+        !/^(que informacion|por que|que medio|cual es la diferencia|escribe|redacta|en tu respuesta)/.test(
+          s,
+        ),
     );
     const quality =
       words.length >= 12 &&
@@ -280,7 +285,7 @@ export const contextualEvaluator: EvidenceEvaluator = {
       points: points[i],
       feedback:
         points[i] === 20
-          ? `Explicaste con claridad: ${c.title.toLowerCase()}.`
+          ? `Explicaste con claridad el criterio «${c.title}».`
           : c.hint,
     }));
     return {
