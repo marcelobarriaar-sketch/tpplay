@@ -439,6 +439,7 @@ function ProfileContent() {
         </button>
       </form>
       <div className="valley-actions">
+        {(profile?.role === "teacher" || profile?.role === "admin") && <Link className="button" to={profile.role === "teacher" ? "/docente#carga-alumnos" : "/admin/cursos#carga-alumnos"}>Cargar alumnos desde Excel</Link>}
         <Link className="button secondary" to="/cuenta/recuperar">
           Cambiar contraseña de forma segura
         </Link>

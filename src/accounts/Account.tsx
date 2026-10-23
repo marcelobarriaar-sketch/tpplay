@@ -461,6 +461,7 @@ export function MyAccount() {
               Abrir panel docente
             </Link>
           )}
+          {(profile.role === "teacher" || profile.role === "admin") && <Link className="button" to={profile.role === "teacher" ? "/docente#carga-alumnos" : "/admin/cursos#carga-alumnos"}>Cargar alumnos desde Excel</Link>}
           {profile.role === "admin" && (
             <Link className="button secondary" to="/administracion-cuentas">
               Gestionar cuentas
