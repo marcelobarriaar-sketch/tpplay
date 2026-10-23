@@ -1,3 +1,4 @@
+import { rosterAction } from "./rosterImport.js";
 import { academicAction, academicCatalog, requireAcademicContext, academicGamePerformance } from './academics.js';
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createHash, randomBytes } from "node:crypto";
@@ -164,6 +165,7 @@ export function learningHandler(
         405,
       );
       const writeActions = [
+        "rosterPreview", "rosterCreate", "rosterProcess", "rosterRetry", "activateStudent",
         "academicSetup", "academicSelect", "academicApprove", "academicScale", "academicLink",
         "identityProfile",
         "missionEvent",
@@ -290,6 +292,14 @@ export function learningHandler(
           403,
         );
       }
+      if (action === "activateStudent") {
+        demand(actor.role === "student" && b.accepted === true, "Acepta los términos y privacidad para activar tu cuenta.");
+        await result(db.from("profiles").update({onboarding_required:false,terms_version:"2026-10",terms_accepted_at:new Date().toISOString()}).eq("id",actor.id));
+        return send(200,{ok:true});
+      }
+      demand(!actor.onboarding_required || action === "me", "Activa tu cuenta y define tu contraseña antes de continuar.",403);
+      const roster = await rosterAction(db,actor,action,b,params,origin!);
+      if(roster!==null)return send(200,roster);
       const academic = await academicAction(db, actor, action, b, params);
       if(academic!==null)return send(200,academic);
       const identity = await identityAction(db, actor, action, b, params);

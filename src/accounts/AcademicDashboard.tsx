@@ -1,3 +1,4 @@
+import { RosterImport } from "./RosterImport";
 import { Link } from "react-router-dom";
 import { missions as challengeCatalog } from "../data";
 import { allItems as townItems } from "../games/coihue/content";
@@ -367,6 +368,7 @@ export function AcademicDashboard() {
         </label>
       </div>
       {busy && <p role="status">Cargando información académica…</p>}
+      <RosterImport key={assignment?.id || "none"} assignment={assignment?.status === "approved" ? assignment : undefined} done={reload} />
       <h2>Mis estudiantes</h2>
       {!selected && (
         <p>

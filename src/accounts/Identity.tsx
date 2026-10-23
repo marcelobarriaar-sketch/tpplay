@@ -61,6 +61,7 @@ export function Guard({
       );
     return <Navigate to="/cuenta/ingresar" replace />;
   }
+  if (profile.onboarding_required) return <Navigate to="/cuenta/activar" replace />;
   if (!roles.includes(profile.role) || problem)
     return (
       <section className="panel">
