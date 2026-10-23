@@ -235,7 +235,7 @@ export const inicioMission: Mission = {
     "En Villa del Coihue, Camila necesita iniciar las actividades de su restaurante La Mesa del Coihue. Recorrerás el Barrio Cívico, la oficina del SII, su portal de práctica y el negocio. Cada nivel te entrega una pieza del expediente.",
   goal: "Preparar y revisar un aviso simulado de inicio de actividades, distinguir sus canales y reconocer la función de la verificación y de los fiscalizadores.",
   evidence:
-    "Redacta una nota para Camila: qué se comunica al SII, por qué el expediente usa Avenida Coihue 120, qué canal utilizarías y cómo se diferencia el aviso de una eventual verificación. Aclara por qué el aviso de inicio no reemplaza los demás permisos del restaurante. No incluyas datos personales.",
+    "Escribe una breve nota dirigida a Camila explicándole, con tus propias palabras, qué debe hacer ante el SII antes de comenzar a funcionar.\n\nEn tu respuesta debes explicar:\n- Qué información debe comunicar al SII al iniciar su actividad comercial.\n- Por qué en el caso de La Mesa del Coihue se utiliza la dirección Avenida Coihue 120.\n- Qué medio o canal utilizarías para realizar este trámite.\n- Cuál es la diferencia entre informar el inicio de actividades y una posible verificación posterior realizada por el SII.\n- Por qué realizar el inicio de actividades ante el SII no significa que el restaurante ya tenga todos los permisos necesarios para funcionar.\n\nRedacta tu respuesta de manera clara, breve y ordenada.\n\nNo incluyas datos personales reales.",
   sourceIds: [
     "sii-inicio-actividades",
     "sii-verificacion-actividad",

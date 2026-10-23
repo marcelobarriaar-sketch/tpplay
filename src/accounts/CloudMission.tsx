@@ -1,3 +1,4 @@
+import { CamilaEvidence } from "../games/inicio/Evidence";
 import { BusinessBudget } from "../games/inicio/Budget";
 import { CoinRanking } from "./Ranking";
 import { InicioStoryGate, CamilaChapter } from "../games/inicio/story";
@@ -275,8 +276,8 @@ function MissionContent({ result }: { result: boolean }) {
         <p className="eyebrow">
           ETAPA {a.index + 1} DE {mission.steps.length + 1}
         </p>
-        <h2>{step?.title || "Explica lo que aprendiste"}</h2>
-        <p>{step?.context || mission.evidence}</p>
+        <h2>{step?.title || (isInicio(mission.slug) ? "Explícaselo a Camila" : "Explica lo que aprendiste")}</h2>
+        {!step && isInicio(mission.slug) ? <CamilaEvidence/> : <p>{step?.context || mission.evidence}</p>}
         <fieldset disabled={busy || !!pending.current}>
           <legend>{step?.prompt || "Tu evidencia final"}</legend>
           {step ? (
@@ -322,7 +323,8 @@ function MissionContent({ result }: { result: boolean }) {
               Tu explicación
               <textarea
                 maxLength={2500}
-                rows={7}
+                rows={isInicio(mission.slug) ? 10 : 7}
+                placeholder={isInicio(mission.slug) ? "Escribe aquí tu explicación para Camila…" : undefined}
                 value={evidence}
                 onChange={(e) => setEvidence(e.target.value)}
               />
