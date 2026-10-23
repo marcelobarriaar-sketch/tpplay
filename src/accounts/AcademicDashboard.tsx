@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { missions as challengeCatalog } from "../data";
 import { allItems as townItems } from "../games/coihue/content";
 import { useEffect, useState, type FormEvent } from "react";
@@ -169,7 +170,12 @@ export function AcademicDashboard() {
   return (
     <section className="section" aria-label="Administrador de cursos">
       <h1>Administrador de cursos</h1>
-      {profile?.role === "admin" && <p>Valida las asignaciones de docentes por establecimiento, curso y asignatura para habilitar el acceso a sus estudiantes y resultados.</p>}
+      {profile?.role === "admin" && (
+        <p>
+          Valida las asignaciones de docentes por establecimiento, curso y
+          asignatura para habilitar el acceso a sus estudiantes y resultados.
+        </p>
+      )}
       <p>
         Un desafío, una nota. Se usa el mejor resultado completado de cada
         estudiante; los intentos se conservan en el detalle.
@@ -179,20 +185,56 @@ export function AcademicDashboard() {
           {error}
         </p>
       )}
-      <details className="panel" open={profile?.role === "admin" ? true : undefined}>
-        <summary>{profile?.role === "admin" ? "Validar cursos y asignaturas por establecimiento" : "Mis cursos y asignaturas · Registro académico"}</summary>
-        <AcademicSetup done={reload} />
+      <details
+        className="panel"
+        open={profile?.role === "admin" ? true : undefined}
+      >
+        <summary>
+          {profile?.role === "admin"
+            ? "Validar cursos y asignaturas por establecimiento"
+            : "Mis cursos y asignaturas · Registro académico"}
+        </summary>
+        {profile?.role === "admin" ? (
+          <details className="spaced">
+            <summary>Registrar cursos y asignaturas</summary>
+            <AcademicSetup done={reload} />
+          </details>
+        ) : (
+          <AcademicSetup done={reload} />
+        )}
+        <h2>
+          {profile?.role === "admin"
+            ? "Registro de cursos y asignaturas"
+            : "Mis cursos registrados"}
+        </h2>
+        {profile?.role === "admin" && (
+          <p>
+            <Link to="/administracion-cuentas">
+              Agregar un establecimiento o comuna al registro
+            </Link>
+          </p>
+        )}
         <ul>
           {assignments.map((a) => (
             <li key={a.id}>
               {a.profiles?.name && `${a.profiles.name} · `}
-              {a.class_groups.schools.name} · {a.class_groups.name} ·{" "}
-              {a.subjects.name} ·{" "}
+              {a.class_groups.schools.name} ·{" "}
+              {a.class_groups.schools.cities?.name || "Comuna sin registrar"} ·{" "}
+              {a.class_groups.name} · {a.subjects.name} · Año{" "}
+              {a.class_groups.school_year} ·{" "}
               {a.status === "approved"
                 ? "Validado"
                 : a.status === "pending"
                   ? "Pendiente de validación"
                   : "Rechazado"}
+              {a.created_at && (
+                <p className="small muted">
+                  Registrado el{" "}
+                  {new Date(a.created_at).toLocaleString("es-CL", {
+                    timeZone: "America/Santiago",
+                  })}
+                </p>
+              )}
               {profile?.role === "admin" && a.status !== "approved" && (
                 <button
                   className="button secondary"
@@ -250,7 +292,8 @@ export function AcademicDashboard() {
             <option value="">Selecciona un curso validado</option>
             {groups.map((a) => (
               <option key={a.group_id} value={a.group_id}>
-                {a.class_groups.schools.name} · {a.class_groups.name} ·{" "}
+                {a.class_groups.schools.name} ·{" "}
+                {a.class_groups.schools.cities?.name} · {a.class_groups.name} ·{" "}
                 {a.class_groups.school_year}
               </option>
             ))}
@@ -330,7 +373,14 @@ export function AcademicDashboard() {
           Registra tus clases y espera su validación para consultar las nóminas.
         </p>
       )}
-      {!data && <><h2>Libro de notas</h2><p>Selecciona un curso y asignatura validados para consultar las notas.</p></>}
+      {!data && (
+        <>
+          <h2>Libro de notas</h2>
+          <p>
+            Selecciona un curso y asignatura validados para consultar las notas.
+          </p>
+        </>
+      )}
       {data && (
         <>
           <div className="ranking-table">

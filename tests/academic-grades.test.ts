@@ -338,3 +338,94 @@ test("academic migration: normalized identities, automatic cohorts, grade snapsh
     await db.close();
   }
 });
+
+test("school consolidation preserves cohorts and records and resolves old school references", async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(
+      `create table cities(id uuid primary key,name text);create table schools(id uuid primary key,city_id uuid references cities,name text);create table profiles(id uuid primary key,school_id uuid references schools,city_id uuid references cities);create table class_groups(id uuid primary key,school_id uuid references schools,school_year int,name_key text);create table courses(id uuid primary key,school_id uuid references schools);create table subscriptions(id uuid primary key,school_id uuid references schools);create table audit(action text,target_id text,details jsonb);create function registry_name(text) returns text language sql immutable as $$select lower(translate($1,'áéíóúñÁÉÍÓÚÑ','aeiounAEIOUN'))$$;`,
+    );
+    const fresia = randomUUID(),
+      pm = randomUUID(),
+      canonical = randomUUID(),
+      duplicate = randomUUID(),
+      group = randomUUID(),
+      person = randomUUID();
+    await db.query("insert into cities values($1,$2),($3,$4)", [
+      fresia,
+      "Fresia",
+      pm,
+      "Puerto Montt",
+    ]);
+    await db.query("insert into schools values($1,$2,$3),($4,$5,$3)", [
+      canonical,
+      fresia,
+      "Liceo Carlos Ibáñez del Campo",
+      duplicate,
+      pm,
+    ]);
+    await db.query("insert into class_groups values($1,$2,2026,$3)", [
+      group,
+      duplicate,
+      "3 administracion",
+    ]);
+    await db.query("insert into profiles values($1,$2,$3)", [
+      person,
+      duplicate,
+      pm,
+    ]);
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/010_school_registry_fresia.sql",
+        "utf8",
+      ),
+    );
+    assert.equal(
+      (
+        await db.query<{ school_id: string }>(
+          "select school_id from class_groups where id=$1",
+          [group],
+        )
+      ).rows[0].school_id,
+      canonical,
+    );
+    assert.deepEqual(
+      (
+        await db.query("select school_id,city_id from profiles where id=$1", [
+          person,
+        ])
+      ).rows[0],
+      { school_id: canonical, city_id: fresia },
+    );
+    assert.equal(
+      (await db.query<{ n: number }>("select count(*)::int n from schools"))
+        .rows[0].n,
+      2,
+    );
+    assert.equal(
+      (
+        await db.query<{ merged_into_id: string }>(
+          "select merged_into_id from schools where id=$1",
+          [duplicate],
+        )
+      ).rows[0].merged_into_id,
+      canonical,
+    );
+    await db.query("insert into class_groups values($1,$2,2026,$3)", [
+      randomUUID(),
+      duplicate,
+      "4 administracion",
+    ]);
+    assert.equal(
+      (
+        await db.query<{ n: number }>(
+          "select count(*)::int n from class_groups where school_id=$1",
+          [canonical],
+        )
+      ).rows[0].n,
+      2,
+    );
+  } finally {
+    await db.close();
+  }
+});

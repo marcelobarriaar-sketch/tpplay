@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 import { learningApi } from "./client";
 import { useAccount } from "./Session";
@@ -7,12 +8,13 @@ export type Assignment = {
   group_id: string;
   subject_id: string;
   status: string;
+  created_at?: string;
   class_groups: {
     id: string;
     name: string;
     school_id: string;
     school_year: number;
-    schools: { name: string };
+    schools: { name: string; cities?: { name: string } };
   };
   subjects: { name: string };
   profiles?: { name: string; email: string };
@@ -39,7 +41,11 @@ export function AcademicFields({
   role: string;
   onChange?: (value: unknown) => void;
 }) {
-  const [schools, setSchools] = useState<{ id: string; name: string }[]>([]),
+  const [schools, setSchools] = useState<
+      { id: string; name: string; city_id: string }[]
+    >([]),
+    [cities, setCities] = useState<{ id: string; name: string }[]>([]),
+    [city, setCity] = useState(""),
     [school, setSchool] = useState(""),
     [catalog, setCatalog] = useState<Catalog | null>(null),
     [year, setYear] = useState(new Date().getFullYear()),
@@ -48,15 +54,30 @@ export function AcademicFields({
     ]),
     [error, setError] = useState("");
   useEffect(() => {
-    void learningApi<{ schools: { id: string; name: string }[] }>("registry")
-      .then((d) => setSchools(d.schools))
+    void learningApi<{
+      schools: { id: string; name: string; city_id: string }[];
+      cities: { id: string; name: string }[];
+    }>("registry")
+      .then((d) => {
+        setSchools(d.schools);
+        setCities(d.cities);
+      })
       .catch((e) => setError(e.message));
   }, []);
   useEffect(() => {
+    let live = true;
+    setCatalog(null);
     if (school)
       void learningApi<Catalog>("academicCatalog&school=" + school)
-        .then(setCatalog)
-        .catch((e) => setError(e.message));
+        .then((d) => {
+          if (live) setCatalog(d);
+        })
+        .catch((e) => {
+          if (live) setError(e.message);
+        });
+    return () => {
+      live = false;
+    };
   }, [school]);
   const payload = {
     school_id: school,
@@ -91,11 +112,47 @@ export function AcademicFields({
           : "Establecimiento y clases que impartes"}
       </legend>
       {error && <p role="alert">{error}</p>}
+      <p className="small muted">
+        Selecciona la comuna y el establecimiento. Luego indica el curso y su
+        asignatura.
+        {role !== "student" &&
+          " Puedes registrar otro establecimiento repitiendo estos pasos."}
+      </p>
+      <label className="field">
+        Comuna del establecimiento
+        <select
+          required
+          name="academic_city"
+          value={city}
+          onChange={(e) => {
+            setCity(e.target.value);
+            setSchool("");
+            setRows([
+              {
+                group_name: "",
+                subject_name: "",
+                group_id: "",
+                subject_id: "",
+              },
+            ]);
+          }}
+        >
+          <option value="">Selecciona una comuna</option>
+          {cities
+            .filter((c) => schools.some((s) => s.city_id === c.id))
+            .map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+        </select>
+      </label>
       <label className="field">
         Establecimiento educacional
         <select
           required
           name="academic_school"
+          disabled={!city}
           value={school}
           onChange={(e) => {
             setSchool(e.target.value);
@@ -110,13 +167,21 @@ export function AcademicFields({
           }}
         >
           <option value="">Selecciona tu establecimiento</option>
-          {schools.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
+          {schools
+            .filter((s) => s.city_id === city)
+            .map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
         </select>
       </label>
+      {school && (
+        <p className="notice">
+          {schools.find((s) => s.id === school)?.name} ·{" "}
+          {cities.find((c) => c.id === city)?.name}
+        </p>
+      )}
       <label className="field">
         Año escolar
         <input
@@ -285,11 +350,26 @@ export function AcademicSetup({ done }: { done?: () => void }) {
         }
       }}
     >
-      <h2>Mi organización académica</h2>
+      <h2>
+        {profile?.role === "student"
+          ? "Mi matrícula"
+          : "Registrar cursos y asignaturas"}
+      </h2>
       <AcademicFields role={profile?.role || "student"} onChange={setData} />
+      {profile?.role === "teacher" && (
+        <p>
+          ¿No aparece tu establecimiento?{" "}
+          <Link to="/cuenta/cursos">
+            Solicita incorporarlo desde tus datos de cuenta
+          </Link>
+          . Administración revisará su nombre y comuna.
+        </p>
+      )}
       <p role="status">{message}</p>
       <button className="button" disabled={busy}>
-        Guardar mi organización académica
+        {profile?.role === "student"
+          ? "Guardar mi matrícula"
+          : "Registrar cursos y asignaturas"}
       </button>
     </form>
   );
