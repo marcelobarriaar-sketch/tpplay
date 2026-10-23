@@ -200,6 +200,7 @@ export default function TeacherPanel() {
   return (
     <>
       <AcademicDashboard/>
+      <details className="panel spaced"><summary>Supervisión histórica de cursos y evidencias</summary>
       <section className="panel">
         <p className="eyebrow">TP PLAY DOCENTE</p>
         <h1>Bienvenido/a, {profile.first_name || profile.name}</h1>
@@ -690,6 +691,7 @@ export default function TeacherPanel() {
           )}
         </section>
       )}
+      </details>
     </>
   );
 }
