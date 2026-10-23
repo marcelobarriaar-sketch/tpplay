@@ -329,6 +329,7 @@ export function AcademicDashboard() {
           Registra tus clases y espera su validación para consultar las nóminas.
         </p>
       )}
+      {!data && <><h2>Libro de notas</h2><p>Selecciona un curso y asignatura validados para consultar las notas.</p></>}
       {data && (
         <>
           <div className="ranking-table">
