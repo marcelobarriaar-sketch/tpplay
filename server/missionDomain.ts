@@ -113,7 +113,7 @@ export function importAttempt(raw: unknown, id: string): Attempt {
   if (m.slug === "inicio-actividades" && state.index === m.steps.length) {
     const history = Array.isArray(v.evidenceEvaluations) ? v.evidenceEvaluations.slice(0, 3) : [];
     for (const evaluation of history) {
-      demand(typeof evaluation.response === "string");
+      demand(evaluation && typeof evaluation.response === "string");
       state = reduceMission(state, { type: "evaluateEvidence", value: evaluation.response });
       if (state.completedAt) break;
     }
