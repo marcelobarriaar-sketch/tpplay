@@ -1,3 +1,4 @@
+import { AcademicSetup } from './AcademicSetup';
 import { bestEvaluation, evidenceOutcome } from "../games/inicio/evaluation";
 import { CoinRanking } from "./Ranking";
 import { useEffect, useState, type ReactNode, type FormEvent } from "react";
@@ -272,6 +273,7 @@ function StudentContent() {
           </button>
         </section>
       )}
+      <details className="panel spaced"><summary>Mi establecimiento, curso y asignaturas</summary><AcademicSetup/></details>
       <section className="section">
         <h2>Misiones y próximos desafíos</h2>
         <div className="account-roster">

@@ -1,3 +1,5 @@
+import { requireAcademicContext, academicGamePerformance } from './academics.js';
+import { budgetSummary } from '../src/games/inicio/economy.js';
 import { rankingSummary, managementRewards, type ManagedAttempt, type Reward } from "./ranking.js";
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -274,6 +276,7 @@ export async function identityAction(
           "Ya existe una aventura guardada. Conservamos ambos recorridos sin sobrescribir el avance de tu cuenta.",
           409,
         );
+        await requireAcademicContext(db,actor,"mision-tributos");
         const reduced = replayLocalCoihue(b.state);
         await read(
           db.rpc("commit_game", {
@@ -281,7 +284,7 @@ export async function identityAction(
             p_game: "mision-tributos",
             p_version: contentVersion,
             p_revision: old?.revision || 0,
-            p_state: reduced.state,
+            p_state: {...reduced.state,academicPerformance:academicGamePerformance(reduced.state)},
             p_event_id: randomUUID(),
             p_event: { type: "local_import" },
             p_details: reduced.details,
@@ -329,6 +332,8 @@ export async function identityAction(
       if (existing) return { ok: true, duplicate: true };
       const state = importAttempt(local, id);
       const m = missionFor(state.missionSlug);
+      await requireAcademicContext(db,actor,m.slug);
+      if(state.missionSlug==='inicio-actividades'&&state.economyVersion===1){const budget=budgetSummary(state);state.financialResult={balance:budget.balance,gained:0,spent:budget.spent};}
       const draft = await read(
         db
           .from("mission_attempts")
@@ -406,6 +411,7 @@ export async function identityAction(
       409,
     );
     demand(!saved || saved.state.missionSlug === m.slug);
+    if(!saved)await requireAcademicContext(db,actor,m.slug);
     const event = b.event as MissionEvent;
     demand(
       event && Object.keys(event).every((k) => ["type", "value"].includes(k)),
@@ -414,6 +420,7 @@ export async function identityAction(
       event.type === "start" && !saved
         ? freshAttempt(id, m.slug)
         : reduceMission(saved?.state || freshAttempt(id, m.slug), event);
+    if(state.missionSlug==='inicio-actividades' && state.economyVersion===1){const budget=budgetSummary(state);state.financialResult={balance:budget.balance,gained:0,spent:budget.spent};}
     const committed = await db.rpc("commit_mission", {
       p_student: actor.id,
       p_id: id,

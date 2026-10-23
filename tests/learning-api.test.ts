@@ -193,10 +193,8 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
     assert.ok(!f.reads.some((r) => ["evidence", "mission_attempts"].includes(r.table)));
     f = fixture("teacher", true, true, true, true);
     const camilaHistory = await call(f.handler, "evidence&course=" + other + "&student=" + other);
-    assert.equal(camilaHistory.status, 200);
-    assert.ok(Array.isArray(camilaHistory.data.missionAttempts));
-    assert.ok(f.reads.find(r=>r.table==='mission_attempts')?.filters.some(([k,v])=>k==='student_id'&&v===other));
-    assert.ok(f.reads.find(r=>r.table==='mission_attempts')?.filters.some(([k,v])=>k==='mission_id'&&v==='inicio-actividades'));
+    assert.equal(camilaHistory.status, 403); // Legacy evidence cannot bypass subject-scoped authorization.
+    assert.ok(!f.reads.some(r=>r.table==='mission_attempts'));
     f = fixture("teacher");
     assert.equal((await call(f.handler, "ranking")).status, 403);
     assert.equal((await call(f.handler, "courses")).status, 200);

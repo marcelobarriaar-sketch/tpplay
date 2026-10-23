@@ -1,3 +1,4 @@
+import { AcademicGate } from './AcademicSetup';
 import { CoinRanking } from "./Ranking";
 import { useEffect, useRef, useState } from "react";
 import { useAccount } from "./Session";
@@ -127,11 +128,11 @@ export default function CloudGame() {
         </div>
       )}
       {saved && saved.owner === profile.id ? (
-        <><CoihueGame
+        <AcademicGate mission="mision-tributos"><CoihueGame
           state={saved.state}
           onEvent={(event) => void send(event)}
           disabled={busy || !!pending}
-        /><CoinRanking compact key={coihueMissions.filter(m=>completed(saved.state,m.id)).length}/></>
+        /><CoinRanking compact key={coihueMissions.filter(m=>completed(saved.state,m.id)).length}/></AcademicGate>
       ) : !problem ? (
         <p role="status">Recuperando tu aventura…</p>
       ) : null}
