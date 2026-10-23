@@ -301,18 +301,20 @@ function MissionContent({ result }: { result: boolean }) {
             ) : (
               <div className="choices">
                 {step.options?.map((option, i) => (
-                  <label className="choice" key={option}>
+                  <label className={`choice ${value === String(i) ? "chosen" : ""}`} key={option}>
                     <input
                       type="radio"
-                      name="answer"
+                      name={`step-${a.index}`}
                       value={i}
                       checked={value === String(i)}
                       disabled={confirmed}
                       onChange={() => setValue(String(i))}
                     />
-                    {option}
+                    <span className="choice-letter" aria-hidden="true">{String.fromCharCode(65 + i)}</span>
+                    <span>{option}</span>
                   </label>
                 ))}
+                {value !== "" && <p role="status">Respuesta seleccionada: {step.options?.[Number(value)]}</p>}
               </div>
             )
           ) : (
