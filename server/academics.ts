@@ -48,7 +48,7 @@ export async function academicCatalog(
     readAcademic(db.from("grading_scales").select("*").order("mission_id")),
     readAcademic(db.from("challenge_subjects").select("*")),
   ]);
-  const assignments = groups.length ? await readAcademic(db.from("teaching_assignments").select("group_id,subject_id").in("group_id",groups.map(g=>g.id)).eq("status","approved")) : [];
+  const assignments = groups?.length ? await readAcademic(db.from("teaching_assignments").select("group_id,subject_id").in("group_id",(groups||[]).map(g=>g.id)).eq("status","approved")) : [];
   return {
     subjects,
     groups,
