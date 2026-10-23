@@ -249,6 +249,26 @@ test("Identity migrations: public roles, server progress across sessions, immuta
       state=freshAttempt(randomUUID(),m.slug);revision=0;await commit();for(let i=0;i<m.steps.length;i++){state=reduceMission(state,{type:'answer',value:String(m.steps[i].correct)});state=reduceMission(state,{type:'confirm'});state=reduceMission(state,{type:'next'});}state=reduceMission(state,{type:'evidence',value:'Explicación de una mejora con todos los criterios del caso.'});state=reduceMission(state,{type:'complete'});await commit();
     }
     assert.equal((await db.query<{xp:number}>('select sum(amount)::integer xp from xp_events where student_id=$1',[student])).rows[0].xp,150);
+    // Camila evaluations use the same durable JSON transaction, event idempotency and RLS.
+    {
+      const camila=missions.find(m=>m.slug==='inicio-actividades')!;
+      let note=freshAttempt(randomUUID(),camila.slug),rev=0;
+      for(const step of camila.steps){note=reduceMission(note,{type:'answer',value:String(step.correct)});note=reduceMission(note,{type:'confirm'});note=reduceMission(note,{type:'next'});}
+      for(let n=0;n<3;n++){
+        note=reduceMission(note,{type:'evaluateEvidence',value:n===0?'Informamos al SII el inicio del negocio y su actividad comercial.':'Todavía debo repasar los conceptos.'});
+        const event=randomUUID();
+        const committed=await db.query<{value:{state:typeof note;revision:number}}>('select commit_mission($1,$2,$3,$4,$5,$6,$7,$8,$9,false) value',[student,note.id,camila.slug,camila.version,rev,note,scoreAttempt(note),camila.steps.length,event]);
+        rev=committed.rows[0].value.revision;
+        assert.equal(committed.rows[0].value.state.evidenceEvaluations?.length,n+1);
+        const duplicate=await db.query<{value:{revision:number}}>('select commit_mission($1,$2,$3,$4,$5,$6,$7,$8,$9,false) value',[student,note.id,camila.slug,camila.version,rev-1,note,scoreAttempt(note),camila.steps.length,event]);
+        assert.equal(duplicate.rows[0].value.revision,rev);
+      }
+      const persisted=(await db.query<{state:typeof note}>('select state from mission_attempts where id=$1',[note.id])).rows[0].state;
+      assert.equal(persisted.evidenceResult?.outcome,'Misión completada con apoyo');
+      assert.equal(persisted.evidenceEvaluations?.length,3);
+      assert.ok(persisted.completedAt);
+      assert.equal(persisted.evidenceEvaluations?.[0].response,'Informamos al SII el inicio del negocio y su actividad comercial.');
+    }
     await db.query("select admin_identity($1,$2,$3)", [
       admin,
       student,

@@ -1,3 +1,4 @@
+import { bestEvaluation, evidenceOutcome } from "../games/inicio/evaluation";
 import { CoinRanking } from "./Ranking";
 import { useEffect, useState, type ReactNode, type FormEvent } from "react";
 import { Link, Navigate } from "react-router-dom";
@@ -330,7 +331,7 @@ function StudentContent() {
               >
                 {missions.find((m) => m.slug === a.mission_id)?.title ||
                   a.mission_id}{" "}
-                · {a.completed_at ? "Completada" : "En curso"}
+                · {a.mission_id === "inicio-actividades" && a.state.evidenceEvaluations?.length ? `${bestEvaluation(a.state.evidenceEvaluations)!.total}/100 · ${evidenceOutcome(a.state.evidenceEvaluations)}` : a.completed_at ? "Completada" : "En curso"}
               </Link>
             </p>
           ))

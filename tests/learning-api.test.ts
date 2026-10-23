@@ -188,7 +188,7 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
         .status,
       403,
     );
-    assert.ok(!f.reads.some((r) => r.table === "evidence"));
+    assert.ok(!f.reads.some((r) => ["evidence", "mission_attempts"].includes(r.table)));
     f = fixture("teacher");
     assert.equal((await call(f.handler, "ranking")).status, 403);
     assert.equal((await call(f.handler, "courses")).status, 200);
