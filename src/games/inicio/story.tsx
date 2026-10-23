@@ -1,7 +1,19 @@
 import { useState, type ReactNode } from 'react';
 
+const camilaOpening = [
+  'Camila está próxima a levantar la cortina de La Mesa del Coihue. Durante meses imaginó un lugar donde vecinos y visitantes pudieran compartir un buen almuerzo. Ahora tiene el local, las mesas y sus recetas listas.',
+  'Sin embargo, mientras revisa los últimos detalles antes de abrir, surge una pregunta clave:',
+  '«¿Qué trámites debo realizar para que mi negocio pueda funcionar legalmente y cumplir con todas las exigencias?»',
+  'Camila sabe que no basta con tener una buena idea y un local preparado. Antes de recibir a sus primeros clientes, deberá descubrir qué instituciones intervienen, qué permisos necesita y qué pasos debe seguir para poner en marcha su emprendimiento de manera formal.',
+] as const;
+
+function CamilaOpening(){
+ const [before,after]=camilaOpening[0].split('La Mesa del Coihue');
+ return <><p>{before}<strong>La Mesa del Coihue</strong>{after}</p><p>{camilaOpening[1]}</p><p><strong>{camilaOpening[2]}</strong></p><p>{camilaOpening[3]}</p></>;
+}
+
 export const camilaChapters = [
-  {look:0, title:'Una idea empieza a tomar forma', text:'Camila levanta la cortina de La Mesa del Coihue. Durante meses imaginó un lugar donde vecinos y visitantes pudieran compartir un almuerzo. Ahora tiene el local, las mesas y sus recetas. Pero entre las cajas encuentra una pregunta que todavía no sabe responder: «¿Cómo aviso que mi negocio comienza?».'},
+  {look:0, title:'Una idea empieza a tomar forma', text:camilaOpening.join('\n\n')},
   {look:1, title:'La carpeta sale a recorrer el pueblo', text:'Camila cambia el delantal por su chaqueta y lleva una carpeta al Barrio Cívico. Paula la recibe en la oficina del SII: «Podemos orientarte aquí; el aviso se realiza por internet como regla general». Camila también podrá continuar desde el computador del restaurante.'},
   {look:1, title:'Lo que dice el letrero y lo que hace el negocio', text:'De vuelta con sus apuntes, Camila escribe el nombre del restaurante en una hoja. Se detiene: «El nombre cuenta mi sueño, pero ¿explica lo que voy a hacer?». Necesita describir la actividad que realmente realizará.'},
   {look:1, title:'Una fecha entre los papeles', text:'Al ordenar los antecedentes, Camila encuentra la fecha del primer acto del caso: 12 de septiembre. Mira el calendario: «No quiero dejar esto para después de abrir». Te pide interpretar el plazo antes de seguir.'},
@@ -19,7 +31,7 @@ export function CamilaChapter({index=0,ending=false}:{index?:number;ending?:bool
  const chapter=camilaChapters[Math.min(Math.max(index,0),8)];
  return <section className="camila-chapter" aria-label={ending?'Desenlace de Camila':'La historia de Camila'}>
   <CamilaPortrait look={ending?2:chapter.look} alt={`Camila, ${ending||chapter.look!==1?'con delantal en su restaurante':'con chaqueta y carpeta preparando el trámite'}.`} />
-  <div><p className="eyebrow">{ending?'EPÍLOGO · VILLA DEL COIHUE':'CAMILA · LA MESA DEL COIHUE'}</p><h2>{ending?'Una carpeta y un siguiente paso':chapter.title}</h2><p>{ending?'«Ahora tengo más claro qué revisar y qué preguntar», dice Camila. Guarda su carpeta y anota los permisos que deberá consultar por separado. Tu recorrido termina aquí; la historia de su restaurante continúa.':chapter.text}</p></div>
+  <div><p className="eyebrow">{ending?'EPÍLOGO · VILLA DEL COIHUE':'CAMILA · LA MESA DEL COIHUE'}</p><h2>{ending?'Una carpeta y un siguiente paso':chapter.title}</h2>{!ending&&index===0?<CamilaOpening/>:<p>{ending?'«Ahora tengo más claro qué revisar y qué preguntar», dice Camila. Guarda su carpeta y anota los permisos que deberá consultar por separado. Tu recorrido termina aquí; la historia de su restaurante continúa.':chapter.text}</p>}</div>
  </section>;
 }
 export function InicioStoryGate({enabled,children}:{enabled:boolean;children:ReactNode}) {
