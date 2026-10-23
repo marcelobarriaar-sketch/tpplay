@@ -73,3 +73,5 @@
 @media(max-width:650px){.mission-start-bar{top:74px;flex-direction:column;align-items:stretch;gap:.6rem;padding:.8rem;margin:1rem 0}.mission-start-bar .button{width:100%;min-height:52px}.mission-start-bar p{font-size:.85rem}.mission-play{width:100%;min-height:50px}.inicio-prologue h1{font-size:1.65rem}}
 
 .business-budget{padding:0 18px}.business-budget>summary{font-weight:700;line-height:1.5;padding:12px 0;min-height:48px}.business-budget-content{padding:6px 0 18px}.business-budget>summary:focus-visible{outline:3px solid var(--lime);outline-offset:4px;border-radius:4px}
+
+.participant-identity{display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.3}.participant-role{font-size:.68rem;color:var(--lime);white-space:nowrap}.participant-name{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.participant-link svg{flex-shrink:0}@media(max-width:600px){.header-actions>.participant-link{max-width:min(42vw,180px);padding:7px 9px;gap:4px}.participant-name{max-width:100%}.participant-role{font-size:.59rem}.participant-link svg{display:none}}
