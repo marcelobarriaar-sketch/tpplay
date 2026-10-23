@@ -97,6 +97,7 @@ class ErrorBoundary extends Component<
     );
   }
 }
+const participantRoles = { student: "Alumno", teacher: "Profesor", admin: "Superadministrador", institution_admin: "Administrador institucional" };
 function Header() {
   const { profile, loading, logout } = useAccount();
   const [open, setOpen] = useState(false);
@@ -203,12 +204,13 @@ function Header() {
             <Search size={21} />
           </button>
           <Link
-            className="login-link"
+            className={`login-link ${profile ? "participant-link" : ""}`}
+            title={profile ? `${participantRoles[profile.role]} · ${profile.name}` : undefined}
             to={profile ? "/perfil" : "/cuenta/ingresar"}
           >
             {loading
               ? "Comprobando…"
-              : profile?.first_name || profile?.name || "Ingresar"}{" "}
+              : profile ? <span className="participant-identity"><span className="participant-role">{participantRoles[profile.role]}</span><span className="participant-name">{profile.name}</span></span> : "Ingresar"}{" "}
             <ArrowUpRight size={16} />
           </Link>
           {profile ? (
