@@ -624,6 +624,11 @@ export function learningHandler(
             .order("id", { ascending: false })
             .range(offset, offset + 199),
         );
+        const missionAttempts = await result(db.from("mission_attempts")
+          .select("id,state,last_activity_at,source")
+          .eq("student_id", student).eq("mission_id", "inicio-actividades")
+          .order("last_activity_at", {ascending:false}).order("id", {ascending:false})
+          .range(offset, offset + 199));
         const progress = await result(
           db
             .from("game_progress")
@@ -635,7 +640,8 @@ export function learningHandler(
         const rubric = await rubricFor(db, course);
         return send(200, {
           evidence,
-          next_offset: evidence?.length === 200 ? offset + 200 : null,
+          missionAttempts,
+          next_offset: evidence?.length === 200 || missionAttempts?.length === 200 ? offset + 200 : null,
           suggestions: suggestions(
             progress?.state ?? initialProgress(),
             rubric,

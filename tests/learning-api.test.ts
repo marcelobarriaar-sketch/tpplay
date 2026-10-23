@@ -20,6 +20,7 @@ function fixture(
   active = true,
   verified = true,
   valid = true,
+  assignedCourse = false,
 ) {
   const reads: { table: string; filters: [string, unknown][] }[] = [];
   const factory = (() => ({
@@ -51,6 +52,7 @@ function fixture(
           return builder;
         },
         range() { return builder; },
+        limit() { return builder; },
         not() { return builder; },
         maybeSingle() {
           return Promise.resolve({
@@ -58,8 +60,8 @@ function fixture(
               table === "profiles"
                 ? { id, name: "Alumno", role, active }
                 : table === "courses"
-                  ? { id: other, teacher_id: other }
-                  : null,
+                  ? { id: other, teacher_id: assignedCourse ? id : other }
+                  : table === "memberships" && assignedCourse ? { student_id: other } : null,
             error: null,
           });
         },
@@ -188,7 +190,13 @@ test("API trusts confirmed provider identity and stored role, rejecting fake rol
         .status,
       403,
     );
-    assert.ok(!f.reads.some((r) => r.table === "evidence"));
+    assert.ok(!f.reads.some((r) => ["evidence", "mission_attempts"].includes(r.table)));
+    f = fixture("teacher", true, true, true, true);
+    const camilaHistory = await call(f.handler, "evidence&course=" + other + "&student=" + other);
+    assert.equal(camilaHistory.status, 200);
+    assert.ok(Array.isArray(camilaHistory.data.missionAttempts));
+    assert.ok(f.reads.find(r=>r.table==='mission_attempts')?.filters.some(([k,v])=>k==='student_id'&&v===other));
+    assert.ok(f.reads.find(r=>r.table==='mission_attempts')?.filters.some(([k,v])=>k==='mission_id'&&v==='inicio-actividades'));
     f = fixture("teacher");
     assert.equal((await call(f.handler, "ranking")).status, 403);
     assert.equal((await call(f.handler, "courses")).status, 200);

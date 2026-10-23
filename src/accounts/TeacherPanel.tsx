@@ -1,3 +1,6 @@
+import { EvaluationCard } from "../games/inicio/EvaluationCard";
+import type { Attempt } from "../progress";
+type MissionEvidence = {id:string;state:Attempt;last_activity_at:string;source:string};
 import { useEffect, useState, useRef, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useAccount } from "./Session";
@@ -64,6 +67,7 @@ export default function TeacherPanel() {
   const [rubric, setRubric] = useState<Rubric>(initialRubric);
   const [editor, setEditor] = useState<Rubric | null>(null);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [missionAttempts, setMissionAttempts] = useState<MissionEvidence[]>([]);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [nextOffset, setNextOffset] = useState<number | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -102,6 +106,7 @@ export default function TeacherPanel() {
     setSelected(null);
     setEvaluation(null);
     setEvidence([]);
+    setMissionAttempts([]);
     setEditor(null);
     if (course) void reload().catch((e) => setMessage(e.message));
   }, [course]);
@@ -134,6 +139,7 @@ export default function TeacherPanel() {
     const request = ++reviewRequest.current;
     setSelected(s);
     setEvidence([]);
+    setMissionAttempts([]);
     setSuggestions([]);
     setNextOffset(null);
     setConfirmed(false);
@@ -151,11 +157,13 @@ export default function TeacherPanel() {
     await run(async () => {
       const data = await learningApi<{
         evidence: Evidence[];
+        missionAttempts: MissionEvidence[];
         next_offset: number | null;
         suggestions: Suggestion[];
       }>("evidence&course=" + course + "&student=" + s.id);
       if (request !== reviewRequest.current) return;
       setEvidence(data.evidence);
+      setMissionAttempts(data.missionAttempts || []);
       setNextOffset(data.next_offset);
       setSuggestions(data.suggestions);
     }, "Evidencias cargadas.");
@@ -474,6 +482,10 @@ export default function TeacherPanel() {
               </p>
             ))}
           </div>
+          <h3>Explícaselo a Camila · Evaluaciones automáticas</h3>
+          <p>Consulta las respuestas y resultados por criterio. La lectura docente es opcional y no bloquea el avance. El puntaje de la nota se conserva separado de los criterios del recorrido.</p>
+          {missionAttempts.map(item=><article className="panel spaced" key={item.id}><h4>Nota para Camila</h4><p>{new Date(item.last_activity_at).toLocaleString('es-CL',{timeZone:'America/Santiago'})} · {item.source==='local_import'?'Importado y recalculado en servidor':'Guardado en cuenta'}</p><EvaluationCard history={item.state.evidenceEvaluations}/>{item.state.evidenceEvaluations?.map(e=><details key={e.attempt}><summary>Intento {e.attempt} · {e.total}/100 · {new Date(e.evaluatedAt).toLocaleString('es-CL',{timeZone:'America/Santiago'})}</summary><blockquote style={{whiteSpace:'pre-wrap'}}>{e.response}</blockquote><ul>{e.criteria.map(c=><li key={c.id}>{c.title}: {c.points}/20 · {c.feedback}</li>)}</ul></details>)}{!item.state.evidenceEvaluations?.length&&<p>Registro anterior a la evaluación automática. {item.state.evidence}</p>}</article>)}
+          {!missionAttempts.length&&<p>No hay notas de Camila guardadas en la cuenta de este estudiante.</p>}
           <h3>Evidencias por actividad</h3>
           <p>
             Se conservan respuestas, reintentos y apoyos, incluidos los
@@ -513,12 +525,14 @@ export default function TeacherPanel() {
                   const request = reviewRequest.current;
                   const data = await learningApi<{
                     evidence: Evidence[];
+        missionAttempts: MissionEvidence[];
                     next_offset: number | null;
                   }>(
                     `evidence&course=${course}&student=${selected.id}&offset=${nextOffset}`,
                   );
                   if (request !== reviewRequest.current) return;
                   setEvidence((current) => [...current, ...data.evidence]);
+                  setMissionAttempts(current => [...current, ...(data.missionAttempts || [])]);
                   setNextOffset(data.next_offset);
                 }, "Más evidencias cargadas.")
               }

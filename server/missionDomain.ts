@@ -1,3 +1,4 @@
+import { evaluateNext, canCompleteEvidence, summarizeEvidence } from '../src/games/inicio/evaluation.js';
 import { missions } from "../src/data.js";
 import { scoreAttempt, type Attempt } from "../src/progress.js";
 import { demand, text } from "./learningDomain.js";
@@ -31,7 +32,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   demand(!previous.completedAt, "Este intento ya está terminado.", 409);
   demand(
     event &&
-      ["answer", "confirm", "next", "evidence", "complete"].includes(
+      ["answer", "confirm", "next", "evidence", "evaluateEvidence", "complete"].includes(
         event.type,
       ),
   );
@@ -68,7 +69,17 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
         ? ""
         : text(event.value, 2500, 0);
   }
+  if (event.type === "evaluateEvidence") {
+    demand(m.slug === "inicio-actividades" && a.index === m.steps.length && m.steps.every((_, i) => a.confirmed[i]));
+    const response = text(event.value, 2500, 0);
+    try { a.evidenceEvaluations = evaluateNext(response, a.evidenceEvaluations); }
+    catch (e) { demand(false, (e as Error).message); }
+    a.evidenceResult = summarizeEvidence(a.evidenceEvaluations!);
+    a.evidence = response;
+    if (canCompleteEvidence(a.evidenceEvaluations)) a.completedAt = new Date().toISOString();
+  }
   if (event.type === "complete") {
+    demand(m.slug !== "inicio-actividades" || canCompleteEvidence(a.evidenceEvaluations), "Evalúa tu nota para Camila antes de terminar.");
     demand(
       a.index === m.steps.length &&
         a.evidence.trim().length >= 25 &&
@@ -98,7 +109,18 @@ export function importAttempt(raw: unknown, id: string): Attempt {
   }
   if (state.index === m.steps.length && typeof v.evidence === "string")
     state = reduceMission(state, { type: "evidence", value: v.evidence });
-  if (v.completedAt) state = reduceMission(state, { type: "complete" });
+  // Never trust client-provided points, outcomes, timestamps or evaluation count.
+  if (m.slug === "inicio-actividades" && state.index === m.steps.length) {
+    const history = Array.isArray(v.evidenceEvaluations) ? v.evidenceEvaluations.slice(0, 3) : [];
+    for (const evaluation of history) {
+      demand(evaluation && typeof evaluation.response === "string");
+      state = reduceMission(state, { type: "evaluateEvidence", value: evaluation.response });
+      if (state.completedAt) break;
+    }
+    // Legacy demos receive a fresh evaluation; a claimed completion cannot bypass the gate.
+    if (v.completedAt && !history.length && state.evidence.trim())
+      state = reduceMission(state, { type: "evaluateEvidence", value: state.evidence });
+  } else if (v.completedAt) state = reduceMission(state, { type: "complete" });
   return state;
 }
 export { scoreAttempt };
