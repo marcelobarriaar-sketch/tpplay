@@ -160,7 +160,7 @@ function MissionContent({ result }: { result: boolean }) {
         {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
-          Las recompensas se calculan en el servidor. Consulta tu Coihues y logros en
+          Tu saldo se calcula en el servidor. Consulta tus Coihues acumulados y logros en
           tu aventura.
         </p>
         <p>Intento: {a.id}</p>
@@ -171,7 +171,7 @@ function MissionContent({ result }: { result: boolean }) {
           </p>
         )}
         {saved.xpEarned !== undefined && (
-          <p>{saved.xpEarned} Coihues acumulados en esta misión.</p>
+          <p>${saved.xpEarned} Coihues acumulados en esta misión.</p>
         )}
         {mission.steps.map((step, i) => (
           <article className="criterion" key={step.title}>

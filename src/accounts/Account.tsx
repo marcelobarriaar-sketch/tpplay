@@ -348,7 +348,7 @@ export function AccountPrivacy() {
         contenido para que puedas continuar tu aventura. Los docentes asignados
         a tus cursos y administradores autorizados pueden revisar estas
         evidencias; tú puedes consultar tu avance y las evaluaciones publicadas.
-        El ranking está reservado a estudiantes con sesión y muestra alias, sin nombres ni correos. Los Coihues representan las recompensas registradas y no tienen valor monetario.
+        El ranking está reservado a estudiantes con sesión y muestra alias, sin nombres ni correos. Los Coihues son la moneda de Villa del Coihue y se acumulan mientras avanzas en las misiones.
       </p>
       <p>
         El navegador conserva la sesión de acceso. Cierra sesión al terminar en
