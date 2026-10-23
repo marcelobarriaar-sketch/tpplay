@@ -34,7 +34,7 @@ export async function academicCatalog(
   db: SupabaseClient,
   school?: string | null,
 ) {
-  const [subjects, groups, scales, links, assignments] = await Promise.all([
+  const [subjects, groups, scales, links] = await Promise.all([
     readAcademic(db.from("subjects").select("id,name").order("name")),
     school
       ? readAcademic(
@@ -47,15 +47,8 @@ export async function academicCatalog(
       : [],
     readAcademic(db.from("grading_scales").select("*").order("mission_id")),
     readAcademic(db.from("challenge_subjects").select("*")),
-    school
-      ? readAcademic(
-          db
-            .from("teaching_assignments")
-            .select("group_id,subject_id")
-            .eq("status", "approved"),
-        )
-      : [],
   ]);
+  const assignments = groups.length ? await readAcademic(db.from("teaching_assignments").select("group_id,subject_id").in("group_id",groups.map(g=>g.id)).eq("status","approved")) : [];
   return {
     subjects,
     groups,
@@ -90,6 +83,27 @@ export async function academicAction(
   )
     return null;
   if (action === "academicSetup") {
+    uuid(b.school_id);
+    demand(
+      Number.isInteger(b.year) &&
+        Number(b.year) >= 2020 &&
+        Number(b.year) <= 2100,
+      "Selecciona un año escolar válido.",
+    );
+    demand(
+      Array.isArray(b.pairs) && b.pairs.length >= 1 && b.pairs.length <= 20,
+      "Agrega entre una y veinte clases.",
+    );
+    for (const raw of b.pairs as Record<string, unknown>[]) {
+      demand(raw && typeof raw === "object");
+      if (actor.role === "student") {
+        uuid(raw.group_id);
+        uuid(raw.subject_id);
+      } else {
+        text(raw.group_name, 120, 2);
+        text(raw.subject_name, 120, 2);
+      }
+    }
     const data = await readAcademic(
       db.rpc("save_academic_setup", { p_user: actor.id, p_data: b }),
     );
@@ -427,6 +441,10 @@ export function academicGamePerformance(state: Progress) {
 
 export function chileBoundary(day: string, end = false) {
   const base = new Date(day + "T12:00:00Z");
+  demand(
+    Number.isFinite(base.getTime()) && base.toISOString().slice(0, 10) === day,
+    "Selecciona una fecha válida.",
+  );
   const hour = Number(
     new Intl.DateTimeFormat("en", {
       timeZone: "America/Santiago",

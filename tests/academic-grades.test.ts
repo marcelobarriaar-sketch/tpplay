@@ -117,6 +117,34 @@ test("academic migration: normalized identities, automatic cohorts, grade snapsh
       ).rows.length,
       1,
     );
+    const registeredTeacher = randomUUID();
+    await db.query(
+      "insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)",
+      [
+        registeredTeacher,
+        "registro@example.test",
+        {
+          first_name: "Docente",
+          last_name: "Registro",
+          initial_role: "teacher",
+          terms_version: "2026-10",
+          academic_setup: {
+            school_id: school,
+            year: 2026,
+            pairs: [{ group_name: "2° Medio A", subject_name: "Matemática" }],
+          },
+        },
+      ],
+    );
+    assert.equal(
+      (
+        await db.query<{ status: string }>(
+          "select status from teaching_assignments where teacher_id=$1",
+          [registeredTeacher],
+        )
+      ).rows[0].status,
+      "pending",
+    );
     await setup(
       otherTeacher,
       school,
@@ -263,10 +291,44 @@ test("academic migration: normalized identities, automatic cohorts, grade snapsh
     ).rows;
     assert.equal(book.length, 1);
     assert.equal(Number(book[0].grade), 7);
-    await db.query('insert into game_progress(student_id,game_id,content_version,revision,state) values($1,$2,1,1,$3)',[student,'mision-tributos',{academicPerformance:{score:60,completed:true}}]);
-    assert.equal(Number((await db.query<{grade:string}>('select grade from academic_results where student_id=$1 and game_id=$2',[student,'mision-tributos'])).rows[0].grade),4);
-    await db.query('update game_progress set state=$1 where student_id=$2 and game_id=$3',[{academicPerformance:{score:30,completed:true}},student,'mision-tributos']);
-    assert.equal(Number((await db.query<{grade:string}>('select grade from academic_results where student_id=$1 and game_id=$2',[student,'mision-tributos'])).rows[0].grade),4);
+    await db.query(
+      "insert into game_progress(student_id,game_id,content_version,revision,state) values($1,$2,1,1,$3)",
+      [
+        student,
+        "mision-tributos",
+        { academicPerformance: { score: 60, completed: true } },
+      ],
+    );
+    assert.equal(
+      Number(
+        (
+          await db.query<{ grade: string }>(
+            "select grade from academic_results where student_id=$1 and game_id=$2",
+            [student, "mision-tributos"],
+          )
+        ).rows[0].grade,
+      ),
+      4,
+    );
+    await db.query(
+      "update game_progress set state=$1 where student_id=$2 and game_id=$3",
+      [
+        { academicPerformance: { score: 30, completed: true } },
+        student,
+        "mision-tributos",
+      ],
+    );
+    assert.equal(
+      Number(
+        (
+          await db.query<{ grade: string }>(
+            "select grade from academic_results where student_id=$1 and game_id=$2",
+            [student, "mision-tributos"],
+          )
+        ).rows[0].grade,
+      ),
+      4,
+    );
     await db.exec("set role authenticated");
     await assert.rejects(db.query("select * from academic_results"));
     await assert.rejects(

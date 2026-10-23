@@ -168,7 +168,7 @@ export function AcademicDashboard() {
   }
   return (
     <section className="section" aria-label="Mi panel académico">
-      <h2>Mi panel académico</h2>
+      <h1>Mi panel académico</h1>
       <p>
         Un desafío, una nota. Se usa el mejor resultado completado de cada
         estudiante; los intentos se conservan en el detalle.
@@ -426,7 +426,7 @@ export function AcademicDashboard() {
               [
                 "Aprobación",
                 grades.length
-                  ? `${Math.round((grades.filter((g) => Math.round((g + Number.EPSILON) * 10) / 10 >= 4).length / grades.length) * 100)}%`
+                  ? `${Math.round((graded.filter((r) => Math.round((Number(r.grade) + Number.EPSILON) * 10) / 10 >= Number(r.scale.grade_pass)).length / grades.length) * 100)}%`
                   : "—",
               ],
               [
@@ -710,50 +710,67 @@ export function AcademicDashboard() {
       {profile?.role === "admin" && catalog && (
         <details className="panel spaced">
           <summary>Administración · Escalas y desafíos por asignatura</summary>
-          {catalog.scales.map((s) => (
-            <form
-              key={s.mission_id + "-" + s.version}
-              className="panel spaced"
-              onSubmit={(e) => void saveScale(e)}
-            >
-              <h3>
-                {catalog.missions.find((m) => m.id === s.mission_id)?.title ||
-                  s.mission_id}
-              </h3>
-              <input type="hidden" name="mission_id" value={s.mission_id} />
-              <label className="field">
-                Referencia
-                <select name="metric" defaultValue={s.metric}>
-                  <option value="performance">Puntaje de desempeño</option>
-                  {s.mission_id === "inicio-actividades" && (
-                    <option value="money">Saldo de la caja en Coihues</option>
-                  )}
-                </select>
-              </label>
-              {[
-                ["minimum", "Puntaje mínimo", s.minimum],
-                ["optimum", "Puntaje óptimo", s.optimum],
-                ["grade_min", "Nota mínima", s.grade_min],
-                ["grade_pass", "Nota de aprobación", s.grade_pass],
-                ["grade_max", "Nota máxima", s.grade_max],
-                ["requirement", "Exigencia (%)", s.requirement * 100],
-              ].map(([name, label, value]) => (
-                <label className="field" key={name}>
-                  {label}
-                  <input
-                    type="number"
-                    required
-                    step="any"
-                    name={String(name)}
-                    defaultValue={value}
-                  />
+          {catalog.missions
+            .map(
+              (m) =>
+                catalog.scales.find((s) => s.mission_id === m.id) || {
+                  mission_id: m.id,
+                  minimum: 0,
+                  optimum: 0,
+                  grade_min: 1,
+                  grade_pass: 4,
+                  grade_max: 7,
+                  requirement: 0.6,
+                  metric: "performance" as const,
+                  version: 0,
+                },
+            )
+            .map((s) => (
+              <form
+                key={s.mission_id + "-" + s.version}
+                className="panel spaced"
+                onSubmit={(e) => void saveScale(e)}
+              >
+                <h3>
+                  {catalog.missions.find((m) => m.id === s.mission_id)?.title ||
+                    s.mission_id}
+                </h3>
+                <input type="hidden" name="mission_id" value={s.mission_id} />
+                <label className="field">
+                  Referencia
+                  <select name="metric" defaultValue={s.metric}>
+                    <option value="performance">Puntaje de desempeño</option>
+                    {s.mission_id === "inicio-actividades" && (
+                      <option value="money">Saldo de la caja en Coihues</option>
+                    )}
+                  </select>
                 </label>
-              ))}
-              <button className="button" disabled={busy}>
-                Guardar escala para nuevos recorridos
-              </button>
-            </form>
-          ))}
+                {[
+                  ["minimum", "Puntaje mínimo", s.minimum],
+                  ["optimum", "Puntaje óptimo", s.optimum],
+                  ["grade_min", "Nota mínima", s.grade_min],
+                  ["grade_pass", "Nota de aprobación", s.grade_pass],
+                  ["grade_max", "Nota máxima", s.grade_max],
+                  ["requirement", "Exigencia (%)", s.requirement * 100],
+                ].map(([name, label, value]) => (
+                  <label className="field" key={name}>
+                    {label}
+                    <input
+                      type="number"
+                      required
+                      step="any"
+                      name={String(name)}
+                      defaultValue={
+                        name === "optimum" && s.version === 0 ? "" : value
+                      }
+                    />
+                  </label>
+                ))}
+                <button className="button" disabled={busy}>
+                  Guardar escala para nuevos recorridos
+                </button>
+              </form>
+            ))}
           <form
             onSubmit={(e) => {
               e.preventDefault();
