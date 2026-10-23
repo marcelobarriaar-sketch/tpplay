@@ -1,5 +1,5 @@
 import { RosterImport } from "./RosterImport";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { missions as challengeCatalog } from "../data";
 import { allItems as townItems } from "../games/coihue/content";
 import { useEffect, useState, type FormEvent } from "react";
@@ -46,6 +46,7 @@ const money = (n: number | null) =>
     : `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("es-CL")} Coihues`;
 export function AcademicDashboard() {
   const { profile } = useAccount();
+  const location = useLocation();
   const [assignments, setAssignments] = useState<Assignment[]>([]),
     [catalog, setCatalog] = useState<Catalog | null>(null),
     [selected, setSelected] = useState(""),
@@ -62,6 +63,7 @@ export function AcademicDashboard() {
     } | null>(null),
     [refresh, setRefresh] = useState(0);
   const reload = () => setRefresh((n) => n + 1);
+  useEffect(() => { if(location.hash === "#carga-alumnos") document.getElementById("carga-alumnos")?.scrollIntoView({block:"start"}); }, [location.hash, selected]);
   useEffect(() => {
     let live = true;
     void Promise.all([
@@ -171,6 +173,7 @@ export function AcademicDashboard() {
   return (
     <section className="section" aria-label="Administrador de cursos">
       <h1>Administrador de cursos</h1>
+      <p><a href="#carga-alumnos" className="button">Cargar alumnos desde Excel</a></p>
       {profile?.role === "admin" && (
         <p>
           Valida las asignaciones de docentes por establecimiento, curso y
@@ -276,7 +279,7 @@ export function AcademicDashboard() {
           ))}
         </ul>
       </details>
-      <div className="filter-panel spaced">
+      <div className="filter-panel spaced" id="seleccionar-curso-excel">
         <label className="field">
           Establecimiento y curso
           <select
@@ -323,6 +326,11 @@ export function AcademicDashboard() {
               ))}
           </select>
         </label>
+      </div>
+      <div id="carga-alumnos" style={{scrollMarginTop:"20px"}}>
+        <RosterImport key={assignment?.id || "none"} assignment={assignment?.status === "approved" ? assignment : undefined} done={reload} />
+      </div>
+      <div className="filter-panel spaced">
         <label className="field">
           Desafío
           <select value={mission} onChange={(e) => setMission(e.target.value)}>
@@ -368,7 +376,7 @@ export function AcademicDashboard() {
         </label>
       </div>
       {busy && <p role="status">Cargando información académica…</p>}
-      <RosterImport key={assignment?.id || "none"} assignment={assignment?.status === "approved" ? assignment : undefined} done={reload} />
+
       <h2>Mis estudiantes</h2>
       {!selected && (
         <p>

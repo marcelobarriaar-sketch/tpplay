@@ -158,7 +158,7 @@ function RosterImportForm({
     }
   }
   return (
-    <details className="panel spaced">
+    <details className="panel spaced" open>
       <summary>Cargar alumnos desde Excel</summary>
       <p>
         <strong>
