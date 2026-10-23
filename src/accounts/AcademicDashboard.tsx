@@ -167,8 +167,9 @@ export function AcademicDashboard() {
     );
   }
   return (
-    <section className="section" aria-label="Mi panel académico">
-      <h1>Mi panel académico</h1>
+    <section className="section" aria-label="Administrador de cursos">
+      <h1>Administrador de cursos</h1>
+      {profile?.role === "admin" && <p>Valida las asignaciones de docentes por establecimiento, curso y asignatura para habilitar el acceso a sus estudiantes y resultados.</p>}
       <p>
         Un desafío, una nota. Se usa el mejor resultado completado de cada
         estudiante; los intentos se conservan en el detalle.
@@ -178,8 +179,8 @@ export function AcademicDashboard() {
           {error}
         </p>
       )}
-      <details className="panel">
-        <summary>Mis cursos y asignaturas · Registro académico</summary>
+      <details className="panel" open={profile?.role === "admin" ? true : undefined}>
+        <summary>{profile?.role === "admin" ? "Validar cursos y asignaturas por establecimiento" : "Mis cursos y asignaturas · Registro académico"}</summary>
         <AcademicSetup done={reload} />
         <ul>
           {assignments.map((a) => (

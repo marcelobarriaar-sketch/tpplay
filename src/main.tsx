@@ -62,6 +62,7 @@ import {
 import CloudMission from "./accounts/CloudMission";
 import UserAdmin from "./accounts/UserAdmin";
 import TeacherPanel from "./accounts/TeacherPanel";
+import { AcademicDashboard } from "./accounts/AcademicDashboard";
 import "./styles.css";
 import "./games/coihue/game.css";
 const AccountArea = lazy(() => import("./accounts/Area"));
@@ -414,6 +415,7 @@ function Layout() {
               </Guard>
             }
           />
+          <Route path="/admin/cursos" element={<Guard roles={["admin"]}><AcademicDashboard /></Guard>} />
           <Route path="/admin" element={<AdminEntry />} />
           <Route path="/ingresar" element={<AccountRoute />} />
           <Route path="/recuperar-acceso" element={<AccountRoute />} />

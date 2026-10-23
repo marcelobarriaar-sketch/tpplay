@@ -80,7 +80,8 @@ function AdminContent() {
           <Link to="/admin/contenidos" className="button secondary">
             Administración de contenidos
           </Link>
-          <Link to="/administracion-cuentas">Cursos y establecimientos</Link>
+          <Link to="/admin/cursos" className="button">Administrador de cursos</Link>
+          <Link to="/administracion-cuentas">Cuentas y establecimientos</Link>
         </div>
         <div className="stats-grid">
           {Object.entries({

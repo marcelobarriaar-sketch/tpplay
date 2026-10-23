@@ -102,7 +102,7 @@ export default function AdminAccounts() {
       <section className="panel">
         <p className="eyebrow">ADMINISTRACIÓN AUTORIZADA</p>
         <h1>Cuentas, establecimientos y permisos</h1>
-        <Link to="/acompanamiento">Cursos y panel docente</Link>
+        <Link to="/admin/cursos" className="button">Administrador de cursos</Link>
         <p>
           Las contraseñas no se muestran. La recuperación envía un enlace al
           correo registrado.
