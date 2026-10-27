@@ -46,6 +46,7 @@ test("academic migration: normalized identities, automatic cohorts, grade snapsh
       "007_identity_operations.sql",
       "008_identity_sessions.sql",
       "009_academic_grades.sql",
+      "013_evidence_choice_grade.sql",
     ])
       await db.exec(readFileSync("supabase/migrations/" + file, "utf8"));
     const city = "11111111-1111-4111-8111-111111111111",
@@ -283,6 +284,12 @@ test("academic migration: normalized identities, automatic cohorts, grade snapsh
         { financialResult: { balance: 600, gained: 0, spent: 0 } },
       ],
     );
+    const weightedId=randomUUID();
+    await db.query("insert into mission_attempts(id,student_id,mission_id,content_version,state,score,completed_at) values($1,$2,'inicio-actividades','inicio-1.0',$3,8,now())",[weightedId,student,{financialResult:{balance:600,gained:0,spent:0},evidenceGradePolicy:"camila-evidence-20-v1",evidenceResult:{bestScore:15}}]);
+    const weighted=(await db.query<{score:string;grade:string;scale:any;money_lost:string}>("select score,grade,scale,money_lost from academic_results where attempt_id=$1",[weightedId])).rows[0];
+    assert.equal(Number(weighted.score),498);assert.ok(Math.abs(Number(weighted.grade)-5.725)<1e-9);assert.equal(Number(weighted.money_lost),0);assert.equal(weighted.scale.evidence_weight,0.2);
+    await db.query("update mission_attempts set state=jsonb_set(state,'{evidenceResult,bestScore}','100') where id=$1",[weightedId]);
+    assert.equal(Number((await db.query<{grade:string}>("select grade from academic_results where attempt_id=$1",[weightedId])).rows[0].grade),Number(weighted.grade));
     const book = (
       await db.query<{ grade: string }>(
         "select grade from academic_gradebook where student_id=$1",

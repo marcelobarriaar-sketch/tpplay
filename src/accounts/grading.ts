@@ -7,7 +7,7 @@ export type Scale = {
   grade_max: number;
   requirement: number;
   metric: "money" | "performance";
-  version: number;
+  version: number; evidence_weight?:number; formula_version?:string;
 };
 export function gradeFor(score: number, scale: Scale) {
   if (

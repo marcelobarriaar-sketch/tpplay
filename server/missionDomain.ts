@@ -4,6 +4,10 @@ import {
 } from "../src/games/inicio/simulation.js";
 import {
   evaluateNext,
+  bestEvaluation,
+  acceptEvidence,
+  evidenceConfirmation,
+  evidenceGradePolicy,
   canCompleteEvidence,
   summarizeEvidence,
 } from "../src/games/inicio/evaluation.js";
@@ -45,6 +49,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   demand(
     event &&
       [
+        "continueEvidence",
         "simulation",
         "answer",
         "confirm",
@@ -57,7 +62,10 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   if (event.type === "simulation") {
     try {
       const value = text(event.value, 1000);
-      const source = !previous.simulation && previous.index===0 && !previous.confirmed[0] ? {...previous,simulation:initialSimulation()} : previous;
+      const source =
+        !previous.simulation && previous.index === 0 && !previous.confirmed[0]
+          ? { ...previous, simulation: initialSimulation() }
+          : previous;
       return applySimulation(source, JSON.parse(value));
     } catch (error) {
       demand(false, (error as Error).message);
@@ -123,13 +131,27 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
     }
     a.evidenceResult = summarizeEvidence(a.evidenceEvaluations!);
     a.evidence = response;
-    if (canCompleteEvidence(a.evidenceEvaluations))
+    if ((bestEvaluation(a.evidenceEvaluations)?.total ?? 0) >= 80) {
+      a.evidenceGradePolicy = evidenceGradePolicy;
       a.completedAt = new Date().toISOString();
+    }
+  }
+  if (event.type === "continueEvidence") {
+    demand(
+      m.slug === "inicio-actividades" &&
+        a.index === m.steps.length &&
+        m.steps.every((_, i) => a.confirmed[i]),
+    );
+    try {
+      return acceptEvidence(a, event.value);
+    } catch (error) {
+      demand(false, (error as Error).message);
+    }
   }
   if (event.type === "complete") {
     demand(
       m.slug !== "inicio-actividades" ||
-        canCompleteEvidence(a.evidenceEvaluations),
+        (bestEvaluation(a.evidenceEvaluations)?.total ?? 0) >= 80,
       "Evalúa tu nota para Camila antes de terminar.",
     );
     demand(
@@ -196,6 +218,16 @@ export function importAttempt(raw: unknown, id: string): Attempt {
       state = reduceMission(state, {
         type: "evaluateEvidence",
         value: state.evidence,
+      });
+    if (
+      !state.completedAt &&
+      v.completedAt &&
+      history.length &&
+      (v.evidenceAcceptance || history.length >= 3)
+    )
+      state = reduceMission(state, {
+        type: "continueEvidence",
+        value: evidenceConfirmation(state.evidenceEvaluations),
       });
   } else if (v.completedAt) state = reduceMission(state, { type: "complete" });
   return state;

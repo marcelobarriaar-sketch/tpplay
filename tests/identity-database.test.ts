@@ -1,3 +1,4 @@
+import { evidenceConfirmation } from "../src/games/inicio/evaluation";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -266,6 +267,9 @@ test("Identity migrations: public roles, server progress across sessions, immuta
         const duplicate=await db.query<{value:{revision:number}}>('select commit_mission($1,$2,$3,$4,$5,$6,$7,$8,$9,false) value',[student,note.id,camila.slug,camila.version,rev-1,note,scoreAttempt(note),camila.steps.length,event]);
         assert.equal(duplicate.rows[0].value.revision,rev);
       }
+      assert.equal(note.completedAt,undefined);
+      note=reduceMission(note,{type:'continueEvidence',value:evidenceConfirmation(note.evidenceEvaluations)});
+      await db.query('select commit_mission($1,$2,$3,$4,$5,$6,$7,$8,$9,false)',[student,note.id,camila.slug,camila.version,rev,note,scoreAttempt(note),camila.steps.length,randomUUID()]);
       const persisted=(await db.query<{state:typeof note}>('select state from mission_attempts where id=$1',[note.id])).rows[0].state;
       assert.equal(persisted.evidenceResult?.outcome,'Misión completada con apoyo');
       assert.equal(persisted.evidenceEvaluations?.length,3);
