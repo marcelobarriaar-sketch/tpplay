@@ -11,7 +11,7 @@ import {
 } from "../src/games/inicio/content";
 import { InicioScene, InicioDocuments } from "../src/games/inicio/Scene";
 import {
-  freshAttempt,
+  freshAttempt as currentAttempt,
   reduceMission,
   importAttempt,
   scoreAttempt,
@@ -94,3 +94,6 @@ test("story keeps digital filing and eventual coordinated inspection distinct an
   assert.doesNotMatch(scene, /fictici|no presenta declaraciones/i);
   assert.doesNotMatch(JSON.stringify(inicioMission), /fictici/i);
 });
+
+// Explicit historical fixtures: preserve saved questionnaire attempts alongside the new simulation.
+function freshAttempt(...args:Parameters<typeof currentAttempt>){const a=currentAttempt(...args);delete a.simulation;return a;}

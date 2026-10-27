@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {BusinessBudget} from '../src/games/inicio/Budget';
 import {budgetSummary,decisionImpact} from '../src/games/inicio/economy';
-import {freshAttempt,reduceMission,importAttempt} from '../server/missionDomain';
+import {freshAttempt as currentAttempt,reduceMission,importAttempt} from '../server/missionDomain';
 import {managementRewards,rankingSummary} from '../server/ranking';
 const correct=['0','1','2','1','3','2','1','2'];
 test('business costs apply once on confirmation, survive reload and cannot be forged through import',()=>{
@@ -25,3 +25,6 @@ test('management ranking uses best completed budget without farming repeated att
  const improved={...row,id:'two',completed_at:'2026-10-22T11:00:00Z',answers:correct};
  const events=managementRewards([row,improved,{...improved,id:'three'}, {...row,id:'old',economyVersion:0},{...row,id:'bad',answers:['999']}]);assert.deepEqual(events.map(e=>e.amount),[280,20]);assert.equal(rankingSummary(events,'student').you.coins,300);
 });
+
+// Explicit historical fixtures: preserve saved questionnaire attempts alongside the new simulation.
+function freshAttempt(...args:Parameters<typeof currentAttempt>){const a=currentAttempt(...args);delete a.simulation;return a;}

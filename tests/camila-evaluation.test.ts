@@ -8,7 +8,7 @@ import {
   evidenceOutcome,
 } from "../src/games/inicio/evaluation";
 import {
-  freshAttempt,
+  freshAttempt as currentAttempt,
   reduceMission,
   importAttempt,
 } from "../server/missionDomain";
@@ -133,3 +133,6 @@ test("best score and attempt gate cannot be raised by repeating or blank submiss
   assert.ok(canCompleteEvidence(history));
   assert.throws(() => evaluateNext(completeNote, history));
 });
+
+// Explicit historical fixtures: preserve saved questionnaire attempts alongside the new simulation.
+function freshAttempt(...args:Parameters<typeof currentAttempt>){const a=currentAttempt(...args);delete a.simulation;return a;}
