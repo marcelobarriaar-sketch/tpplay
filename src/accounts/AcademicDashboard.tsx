@@ -1,3 +1,4 @@
+import { GameHUD } from "../games/inicio/SimulationGame";
 import { RosterImport } from "./RosterImport";
 import { Link, useLocation } from "react-router-dom";
 import { missions as challengeCatalog } from "../data";
@@ -699,6 +700,7 @@ export function AcademicDashboard() {
                     </button>
                   </p>
                 ))}
+              {detail.detail?.state.simulation?.version===1 && <><h3>Gestión del negocio · recorrido de Camila</h3><GameHUD attempt={detail.detail.state}/></>}
               {detail.detail?.state.evidence && (
                 <blockquote style={{ whiteSpace: "pre-wrap" }}>
                   {detail.detail.state.evidence}

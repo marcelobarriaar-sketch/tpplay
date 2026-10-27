@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import {
-  freshAttempt,
+  freshAttempt as currentAttempt,
   reduceMission,
   importAttempt,
   scoreAttempt,
@@ -27,6 +27,7 @@ test("Identity migrations: public roles, server progress across sessions, immuta
       "006_identity.sql",
       "007_identity_operations.sql",
       "008_identity_sessions.sql",
+      "012_camila_simulation.sql",
     ])
       await db.exec(readFileSync("supabase/migrations/" + file, "utf8"));
     for (const [id, role] of [
@@ -249,6 +250,8 @@ test("Identity migrations: public roles, server progress across sessions, immuta
       state=freshAttempt(randomUUID(),m.slug);revision=0;await commit();for(let i=0;i<m.steps.length;i++){state=reduceMission(state,{type:'answer',value:String(m.steps[i].correct)});state=reduceMission(state,{type:'confirm'});state=reduceMission(state,{type:'next'});}state=reduceMission(state,{type:'evidence',value:'Explicación de una mejora con todos los criterios del caso.'});state=reduceMission(state,{type:'complete'});await commit();
     }
     assert.equal((await db.query<{xp:number}>('select sum(amount)::integer xp from xp_events where student_id=$1',[student])).rows[0].xp,150);
+    // The opening badge is atomic with the saved server state, never auto-unlocked by generic XP.
+    {const simulationStudent=randomUUID();await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)',[simulationStudent,'simulation@example.test',{first_name:'Alumno',last_name:'Integración',initial_role:'student',terms_version:'2026-10'}]);let opening=currentAttempt(randomUUID(),'inicio-actividades');const events=[{action:'begin'},{action:'talk',value:'business'},{action:'talk',value:'pending'},{action:'map'},{action:'travel',value:'sii'},{action:'investigate'},{action:'place',value:'notice',target:'sii'},{action:'place',value:'permit',target:'municipality'},{action:'prepare'},{action:'draft',value:'person',target:'natural'},{action:'draft',value:'activity',target:'meals'},{action:'draft',value:'procedure',target:'start'},{action:'submit'}];for(const event of events)opening=reduceMission(opening,{type:'simulation',value:JSON.stringify(event)});await db.query('select commit_mission($1,$2,$3,$4,0,$5,$6,8,$7,false)',[simulationStudent,opening.id,opening.missionSlug,opening.version,opening,scoreAttempt(opening),randomUUID()]);assert.equal((await db.query<{n:number}>("select count(*)::integer n from user_achievements where student_id=$1 and achievement_code='camila-primer-paso'",[simulationStudent])).rows[0].n,1);assert.equal((await db.query<{n:number}>("select count(*)::integer n from user_achievements where student_id=$1 and achievement_code='camila-primer-paso'",[other])).rows[0].n,0);}
     // Camila evaluations use the same durable JSON transaction, event idempotency and RLS.
     {
       const camila=missions.find(m=>m.slug==='inicio-actividades')!;
@@ -317,3 +320,6 @@ test("Mission reducer rejects skipped steps, forged completion and client-suppli
   assert.equal((imported as any).xp, undefined);
   assert.equal(imported.completedAt, undefined);
 });
+
+// Explicit historical fixtures: preserve saved questionnaire attempts alongside the new simulation.
+function freshAttempt(...args:Parameters<typeof currentAttempt>){const a=currentAttempt(...args);delete a.simulation;return a;}

@@ -1,6 +1,7 @@
+import { initialSimulation, applySimulation } from "./games/inicio/simulation.js";
 import type { EvidenceEvaluation } from './games/inicio/evaluation.js';
 import { missions } from './data.js';
-export type Attempt = { financialResult?: {balance:number;gained:number;spent:number}; evidenceResult?: {bestScore:number;bestAttempt:number;attempts:number;outcome:string}; evidenceEvaluations?: EvidenceEvaluation[]; economyVersion?: 1; id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
+export type Attempt = { simulation?: import("./games/inicio/simulation.js").SimulationState; financialResult?: {balance:number;gained:number;spent:number}; evidenceResult?: {bestScore:number;bestAttempt:number;attempts:number;outcome:string}; evidenceEvaluations?: EvidenceEvaluation[]; economyVersion?: 1; id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
 export type DemoState = { schema: 1; attempts: Attempt[]; reducedMotion: boolean };
 export const initialState: DemoState = { schema: 1, attempts: [], reducedMotion: false };
 export const STORAGE_KEY = 'tpplay-demo-v1';
@@ -25,7 +26,7 @@ export function summarize(attempts: Attempt[]) {
 export function makeAttempt(slug: string): Attempt {
   const mission = missions.find(m => m.slug === slug);
   if (!mission) throw new Error('Misión no encontrada');
-  return { ...(slug==='inicio-actividades'?{economyVersion:1 as const}:{}), id: crypto.randomUUID(), missionSlug: slug, version: mission.version, createdAt: new Date().toISOString(), answers: [], confirmed: [], index: 0, evidence: '' };
+  return { ...(slug==='inicio-actividades'?{economyVersion:1 as const,simulation:initialSimulation()}:{}), id: crypto.randomUUID(), missionSlug: slug, version: mission.version, createdAt: new Date().toISOString(), answers: [], confirmed: [], index: 0, evidence: '' };
 }
 export function parseDemoState(value: string): DemoState {
   const parsed = JSON.parse(value);
@@ -38,5 +39,6 @@ export function parseDemoState(value: string): DemoState {
         !Number.isInteger(attempt.index) || attempt.index < 0 || attempt.index > mission.steps.length ||
         typeof attempt.evidence !== 'string' || (attempt.completedAt && typeof attempt.completedAt !== 'string')) throw new Error('No se pudo leer un intento guardado');
   }
+  for(const attempt of parsed.attempts){if(attempt.simulation?.version===1){if(!Array.isArray(attempt.simulation.log)||attempt.simulation.log.length>80)throw Error('Registro de simulación incompatible');let restored:Attempt={...attempt,index:0,completedAt:undefined,answers:[],confirmed:[],simulation:initialSimulation()};for(const event of attempt.simulation.log)restored=applySimulation(restored,event);if(attempt.index>0&&restored.simulation?.phase!=='reward')throw Error('La etapa de simulación no está terminada');attempt.simulation=restored.simulation;attempt.answers[0]=restored.answers[0]||'';attempt.confirmed[0]=!!restored.confirmed[0];}}
   return { schema: 1, attempts: parsed.attempts, reducedMotion: parsed.reducedMotion === true };
 }

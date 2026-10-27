@@ -1,3 +1,5 @@
+import { initialSimulation } from "../games/inicio/simulation";
+import { OpeningSimulation, GameHUD } from "../games/inicio/SimulationGame";
 import { AcademicGate } from './AcademicSetup';
 import { EvaluationCard } from "../games/inicio/EvaluationCard";
 import { evidenceOutcome } from "../games/inicio/evaluation";
@@ -161,7 +163,7 @@ function MissionContent({ result }: { result: boolean }) {
         {alert}
         <p className="eyebrow">MISIÓN GUARDADA</p>
         <h1>¡Cada decisión te hace avanzar!</h1>
-        <h2>{mission.title}</h2><BusinessBudget attempt={a}/><CoinRanking compact/>
+        <h2>{mission.title}</h2>{a.simulation?.version===1&&<GameHUD attempt={a}/>}<BusinessBudget attempt={a}/><CoinRanking compact/>
         {isInicio(mission.slug) && <CamilaChapter ending/>}
         <p>Completada: {new Date(a.completedAt!).toLocaleString("es-CL")}</p>
         <p>
@@ -231,6 +233,7 @@ function MissionContent({ result }: { result: boolean }) {
       return;
     if (await send("complete")) navigate(`/intentos/${a.id}/resultados`);
   }
+  if(isInicio(mission.slug) && a.index===0 && (a.simulation?.version===1 || !a.confirmed[0])) return <div className="player-page">{alert}<div className="player-top"><Link to="/alumno">Mi aventura</Link><button className="button secondary" disabled={busy||!!pending.current} onClick={()=>navigate('/alumno')}>Guardar y salir</button></div><GameHUD attempt={a}/><p className="small muted" role="status">{busy?'Guardando en tu cuenta…':pending.current?'Guardado pendiente: reintenta antes de salir.':'Última acción confirmada por el servidor.'}</p><OpeningSimulation attempt={a.simulation?a:{...a,simulation:initialSimulation()}} busy={busy||!!pending.current} onAction={event=>void send('simulation',JSON.stringify(event))} onNext={()=>void send('next')}/></div>;
   return (
     <InicioStoryGate key={a.id} enabled={isInicio(mission.slug) && a.index===0 && !a.confirmed[0]}><div className="player-page">
       {alert}
@@ -279,6 +282,7 @@ function MissionContent({ result }: { result: boolean }) {
           style={{ width: `${(a.index / (mission.steps.length + 1)) * 100}%` }}
         />
       </div>
+      {a.simulation?.version===1&&<GameHUD attempt={a}/>}
       {isInicio(mission.slug) && (
         <InicioScene key={a.index} index={a.index} confirmed={a.confirmed} />
       )}
