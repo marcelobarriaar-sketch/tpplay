@@ -1,3 +1,4 @@
+import { ManagementRecord } from "../games/inicio/ManagementGame";
 import { GameHUD } from "../games/inicio/SimulationGame";
 import { RosterImport } from "./RosterImport";
 import { Link, useLocation } from "react-router-dom";
@@ -703,12 +704,13 @@ export function AcademicDashboard() {
               {detail.detail?.state.simulation?.version===1 && <><h3>Gestión del negocio · recorrido de Camila</h3><GameHUD attempt={detail.detail.state}/></>}
               {detail.record.scale.evidence_weight && <p>Nota ponderada: 80% gestión de recursos y 20% mejor explicación evaluada. La caja y sus movimientos conservan sus valores reales.</p>}
               {detail.detail?.state.evidenceAcceptance && <p>El alumno eligió continuar y cerrar con su mejor explicación evaluada: {detail.detail.state.evidenceAcceptance.bestScore}/100. La confirmación quedó registrada.</p>}
+              {detail.detail?.state.management && <ManagementRecord attempt={detail.detail.state}/>}
               {detail.detail?.state.evidence && (
                 <blockquote style={{ whiteSpace: "pre-wrap" }}>
                   {detail.detail.state.evidence}
                 </blockquote>
               )}
-              <EvaluationCard
+              <EvaluationCard closed={detail.record.status==='completed'}
                 history={detail.detail?.state.evidenceEvaluations}
               />
               {detail.detail?.state.evidenceEvaluations?.map((e) => (

@@ -1,3 +1,4 @@
+import { ManagementGame, ManagementRecord } from "../games/inicio/ManagementGame";
 import { initialSimulation } from "../games/inicio/simulation";
 import { OpeningSimulation, GameHUD } from "../games/inicio/SimulationGame";
 import { AcademicGate } from './AcademicSetup';
@@ -201,7 +202,8 @@ function MissionContent({ result }: { result: boolean }) {
             </p>
           </article>
         ))}
-        <h3>{isInicio(mission.slug) ? `Tu evidencia · ${a.evidenceEvaluations?.length ? evidenceOutcome(a.evidenceEvaluations) : "Registro anterior a la evaluación automática"}` : "Tu evidencia · Pendiente de revisión docente"}</h3>{isInicio(mission.slug)&&<EvaluationCard history={a.evidenceEvaluations}/>}
+        <h3>{isInicio(mission.slug) ? `Tu evidencia · ${a.evidenceEvaluations?.length ? evidenceOutcome(a.evidenceEvaluations) : "Registro anterior a la evaluación automática"}` : "Tu evidencia · Pendiente de revisión docente"}</h3>{isInicio(mission.slug)&&<EvaluationCard history={a.evidenceEvaluations} closed/>}
+        {a.management&&<ManagementRecord attempt={a}/>}
         <blockquote>{a.evidence}</blockquote>
         <Link className="button" to="/alumno">
           Ver mi progreso y logros
@@ -234,6 +236,7 @@ function MissionContent({ result }: { result: boolean }) {
     if (await send("complete")) navigate(`/intentos/${a.id}/resultados`);
   }
   if(isInicio(mission.slug) && a.index===0 && (a.simulation?.version===1 || !a.confirmed[0])) return <div className="player-page">{alert}<div className="player-top"><Link to="/alumno">Mi aventura</Link><button className="button secondary" disabled={busy||!!pending.current} onClick={()=>navigate('/alumno')}>Guardar y salir</button></div><GameHUD attempt={a}/><p className="small muted" role="status">{busy?'Guardando en tu cuenta…':pending.current?'Guardado pendiente: reintenta antes de salir.':'Última acción confirmada por el servidor.'}</p><OpeningSimulation attempt={a.simulation?a:{...a,simulation:initialSimulation()}} busy={busy||!!pending.current} onAction={event=>void send('simulation',JSON.stringify(event))} onNext={()=>void send('next')}/></div>;
+  if(isInicio(mission.slug)&&a.index>=1&&a.index<=7)return <div className="player-page">{alert}<div className="player-top"><Link to="/alumno">Mi aventura</Link><button className="button secondary" disabled={busy||!!pending.current} onClick={()=>navigate('/alumno')}>Guardar y salir</button></div><GameHUD attempt={a}/><p className="small muted" role="status">{busy?'Guardando en tu cuenta…':pending.current?'Guardado pendiente: reintenta antes de salir.':'Última acción confirmada por el servidor.'}</p><ManagementGame key={a.index} attempt={a} busy={busy||!!pending.current} onAction={event=>void send('manage',JSON.stringify(event))} onConfirm={()=>void send('confirm')} onNext={()=>void send('next')}/></div>;
   return (
     <InicioStoryGate key={a.id} enabled={isInicio(mission.slug) && a.index===0 && !a.confirmed[0]}><div className="player-page">
       {alert}
@@ -284,7 +287,7 @@ function MissionContent({ result }: { result: boolean }) {
       </div>
       {a.simulation?.version===1&&<GameHUD attempt={a}/>}
       {isInicio(mission.slug) && (
-        <InicioScene key={a.index} index={a.index} confirmed={a.confirmed} />
+        a.index===8?<CamilaChapter index={8}/>:<InicioScene key={a.index} index={a.index} confirmed={a.confirmed} />
       )}
       <section className="panel task-panel">
         <p className="eyebrow">

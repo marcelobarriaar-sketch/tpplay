@@ -10,11 +10,13 @@ export function EvaluationCard({
   onContinue,
   onReview,
   disabled = false,
+  closed = false,
 }: {
   history?: EvidenceEvaluation[];
   onContinue?: () => void;
   onReview?: () => void;
   disabled?: boolean;
+  closed?: boolean;
 }) {
   const [confirming, setConfirming] = useState(false);
   const confirmation = useRef<HTMLDivElement>(null);
@@ -25,16 +27,18 @@ export function EvaluationCard({
   const best = bestEvaluation(history),
     latest = history.at(-1);
   if (!best || !latest) return null;
-  const final = best.total >= 80 || history.length >= 3;
+  const final = closed || best.total >= 80 || history.length >= 3;
   const display = final ? best : latest;
   const title =
     best.total >= 80
       ? "✅ ¡Excelente trabajo!"
-      : history.length >= 3
-        ? "Evaluación finalizada"
-        : display.total >= 60
-          ? "🟡 Vas por buen camino"
-          : "🔴 Revisemos antes de continuar";
+      : closed
+        ? "Resultado registrado · aspectos por reforzar"
+        : history.length >= 3
+          ? "Evaluación finalizada"
+          : display.total >= 60
+            ? "🟡 Vas por buen camino"
+            : "🔴 Revisemos antes de continuar";
   const message =
     best.total >= 80
       ? "Tu explicación demuestra que comprendiste los principales pasos que Camila debe considerar para comenzar formalmente su actividad."
@@ -103,20 +107,26 @@ export function EvaluationCard({
           </ul>
         </>
       )}
-      {best.total < 80 && history.length < 3 && (
+      {!closed && best.total < 80 && history.length < 3 && (
         <p>
           Revisa las pistas, vuelve a leer el recorrido de Camila y edita tu
           nota. Te quedan {3 - history.length} intentos. Conservaremos tu mejor
           puntaje.{" "}
         </p>
       )}
-      {history.length >= 3 && best.total < 80 && (
+      {closed && best.total < 80 && (
+        <p>
+          Este intento quedó cerrado con tu mejor respuesta evaluada. Puedes
+          repasar los contenidos e iniciar un nuevo intento para mejorar.
+        </p>
+      )}
+      {!closed && history.length >= 3 && best.total < 80 && (
         <p>
           Puedes continuar con apoyo. Tu explicación y los aspectos por reforzar
           quedan registrados.
         </p>
       )}
-      {onContinue && best.total < 80 && (
+      {!closed && onContinue && best.total < 80 && (
         <div className="evidence-choice">
           <p>
             Tu mejor explicación evaluada obtuvo {best.total}/100. Si continúas,
