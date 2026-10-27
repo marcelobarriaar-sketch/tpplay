@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ReactionQueue } from "../reactions/GameReaction";
 import {
   Landmark,
   Building2,
@@ -99,6 +100,7 @@ export function OpeningSimulation({
       className="simulation-game"
       aria-label="Simulación empresarial: El encargo de Camila"
     >
+      <ReactionQueue attempt={attempt} />
       <div className="simulation-heading">
         <span className="pill">MISIÓN 01 · {mission.mission}</span>
         <span className="muted">La Mesa del Coihue · {mission.scenario}</span>
