@@ -349,3 +349,33 @@ export function summarizeEvidence(history: EvidenceEvaluation[]) {
     outcome: evidenceOutcome(history),
   };
 }
+
+export const evidenceGradePolicy = "camila-evidence-20-v1" as const;
+export function evidenceConfirmation(history: EvidenceEvaluation[] = []) {
+  const best = bestEvaluation(history);
+  if (!best || best.total >= 80)
+    throw Error("Primero evalúa tu explicación para decidir cómo continuar.");
+  return `${history.length}:${best.total}`;
+}
+export function acceptEvidence(
+  attempt: import("../../progress.js").Attempt,
+  confirmation: unknown,
+) {
+  if (confirmation !== evidenceConfirmation(attempt.evidenceEvaluations))
+    throw Error(
+      "La evaluación cambió. Revisa el resultado y confirma nuevamente.",
+    );
+  const best = bestEvaluation(attempt.evidenceEvaluations)!;
+  return {
+    ...attempt,
+    evidence: best.response,
+    evidenceGradePolicy,
+    evidenceResult: summarizeEvidence(attempt.evidenceEvaluations!),
+    evidenceAcceptance: {
+      evaluations: attempt.evidenceEvaluations!.length,
+      bestScore: best.total,
+      acceptedAt: new Date().toISOString(),
+    },
+    completedAt: new Date().toISOString(),
+  };
+}

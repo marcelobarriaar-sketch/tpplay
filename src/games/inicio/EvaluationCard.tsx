@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   bestEvaluation,
@@ -6,9 +7,21 @@ import {
 } from "./evaluation";
 export function EvaluationCard({
   history = [],
+  onContinue,
+  onReview,
+  disabled = false,
 }: {
   history?: EvidenceEvaluation[];
+  onContinue?: () => void;
+  onReview?: () => void;
+  disabled?: boolean;
 }) {
+  const [confirming, setConfirming] = useState(false);
+  const confirmation = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (confirming) confirmation.current?.focus();
+  }, [confirming]);
+  useEffect(() => setConfirming(false), [history.length]);
   const best = bestEvaluation(history),
     latest = history.at(-1);
   if (!best || !latest) return null;
@@ -18,7 +31,7 @@ export function EvaluationCard({
     best.total >= 80
       ? "✅ ¡Excelente trabajo!"
       : history.length >= 3
-        ? "Misión completada con apoyo"
+        ? "Evaluación finalizada"
         : display.total >= 60
           ? "🟡 Vas por buen camino"
           : "🔴 Revisemos antes de continuar";
@@ -95,9 +108,6 @@ export function EvaluationCard({
           Revisa las pistas, vuelve a leer el recorrido de Camila y edita tu
           nota. Te quedan {3 - history.length} intentos. Conservaremos tu mejor
           puntaje.{" "}
-          <Link className="text-link" to="/desafios/inicio-actividades">
-            Volver al contenido de aprendizaje
-          </Link>
         </p>
       )}
       {history.length >= 3 && best.total < 80 && (
@@ -105,6 +115,83 @@ export function EvaluationCard({
           Puedes continuar con apoyo. Tu explicación y los aspectos por reforzar
           quedan registrados.
         </p>
+      )}
+      {onContinue && best.total < 80 && (
+        <div className="evidence-choice">
+          <p>
+            Tu mejor explicación evaluada obtuvo {best.total}/100. Si continúas,
+            este resultado se reflejará en tu nota final: la explicación pesa un
+            20% y la gestión de recursos un 80%. No se incluyen cambios de texto
+            sin evaluar.
+          </p>
+          {best.total < 60 && (
+            <p>
+              <strong>
+                El resultado de tu explicación es bajo. Te recomendamos volver a
+                los contenidos antes de cerrar la misión.
+              </strong>
+            </p>
+          )}
+          <div className="valley-actions">
+            {onReview ? (
+              <button
+                className="button secondary"
+                disabled={disabled}
+                onClick={onReview}
+              >
+                Volver a los contenidos
+              </button>
+            ) : (
+              <Link
+                className="button secondary"
+                to="/desafios/inicio-actividades"
+              >
+                Volver a los contenidos
+              </Link>
+            )}
+            {!confirming && (
+              <button
+                className="button"
+                disabled={disabled}
+                onClick={() => setConfirming(true)}
+              >
+                Continuar con mi resultado
+              </button>
+            )}
+          </div>
+          {confirming && (
+            <div
+              ref={confirmation}
+              tabIndex={-1}
+              className="notice"
+              role="group"
+              aria-label="Confirmar cierre con el resultado obtenido"
+            >
+              <h3>¿Quieres continuar igual?</h3>
+              <p>
+                Se cerrará este intento con tu mejor respuesta evaluada (
+                {best.total}/100), aunque todavía puedas mejorarla. Después
+                podrás iniciar otro intento; este resultado quedará registrado.
+              </p>
+              <div className="valley-actions">
+                <button
+                  className="button"
+                  disabled={disabled}
+                  onClick={onContinue}
+                >
+                  Sí, continuar y finalizar
+                </button>
+                <button
+                  className="button secondary"
+                  disabled={disabled}
+                  onClick={() => setConfirming(false)}
+                >
+                  Seguir revisando mi explicación
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
       <p className="small muted">
         Evaluación automática por relaciones entre conceptos · {latest.version}.

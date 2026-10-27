@@ -2,7 +2,7 @@ import { initialSimulation } from "../games/inicio/simulation";
 import { OpeningSimulation, GameHUD } from "../games/inicio/SimulationGame";
 import { AcademicGate } from './AcademicSetup';
 import { EvaluationCard } from "../games/inicio/EvaluationCard";
-import { evidenceOutcome } from "../games/inicio/evaluation";
+import { evidenceOutcome, evidenceConfirmation } from "../games/inicio/evaluation";
 import { CamilaEvidence } from "../games/inicio/Evidence";
 import { BusinessBudget } from "../games/inicio/Budget";
 import { CoinRanking } from "./Ranking";
@@ -345,7 +345,7 @@ function MissionContent({ result }: { result: boolean }) {
               />
             </label>
           )}
-          {!step && isInicio(mission.slug) && <EvaluationCard history={a.evidenceEvaluations}/>}
+          {!step && isInicio(mission.slug) && <EvaluationCard history={a.evidenceEvaluations} onReview={async()=>{if(evidence===a.evidence || await send("evidence",evidence))navigate("/desafios/inicio-actividades");}} disabled={busy||!!pending.current} onContinue={async()=>{if(await send("continueEvidence",evidenceConfirmation(a.evidenceEvaluations)))navigate(`/intentos/${a.id}/resultados`);}}/>}
           {step && <BusinessBudget attempt={a} index={a.index} answer={value} confirmed={confirmed}/>}
           {step && confirmed && (
             <p className="feedback" role="status">
@@ -390,7 +390,7 @@ function MissionContent({ result }: { result: boolean }) {
                 >
                   Guardar mi explicación
                 </button>
-                <button className="button" onClick={() => void finish()}>
+                <button className="button" disabled={isInicio(mission.slug)&&(a.evidenceEvaluations?.length??0)>=3} onClick={() => void finish()}>
                   {isInicio(mission.slug) ? "Evaluar mi explicación" : "Terminar misión"}
                 </button>
               </>

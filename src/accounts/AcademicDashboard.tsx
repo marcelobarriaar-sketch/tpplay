@@ -446,7 +446,7 @@ export function AcademicDashboard() {
                       </td>
                       <td>
                         {r
-                          ? r.scale.metric === "money"
+                          ? r.scale.evidence_weight ? `${Number(r.achievement).toFixed(1)}% ponderado` : r.scale.metric === "money"
                             ? money(r.score)
                             : `${r.score} puntos`
                           : "—"}
@@ -564,10 +564,10 @@ export function AcademicDashboard() {
                         ?.title || r.mission_id}
                     </td>
                     <td>
-                      {r.scale.metric === "money" ? money(r.score) : r.score}
+                      {r.scale.evidence_weight ? `${Number(r.score).toFixed(1)} puntos ponderados` : r.scale.metric === "money" ? money(r.score) : r.score}
                     </td>
                     <td>
-                      {r.scale.metric === "money"
+                      {r.scale.metric === "money" && !r.scale.evidence_weight
                         ? money(r.maximum)
                         : r.maximum}
                     </td>
@@ -701,6 +701,8 @@ export function AcademicDashboard() {
                   </p>
                 ))}
               {detail.detail?.state.simulation?.version===1 && <><h3>Gestión del negocio · recorrido de Camila</h3><GameHUD attempt={detail.detail.state}/></>}
+              {detail.record.scale.evidence_weight && <p>Nota ponderada: 80% gestión de recursos y 20% mejor explicación evaluada. La caja y sus movimientos conservan sus valores reales.</p>}
+              {detail.detail?.state.evidenceAcceptance && <p>El alumno eligió continuar y cerrar con su mejor explicación evaluada: {detail.detail.state.evidenceAcceptance.bestScore}/100. La confirmación quedó registrada.</p>}
               {detail.detail?.state.evidence && (
                 <blockquote style={{ whiteSpace: "pre-wrap" }}>
                   {detail.detail.state.evidence}

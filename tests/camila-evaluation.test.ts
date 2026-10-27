@@ -5,7 +5,7 @@ import {
   evaluateNext,
   bestEvaluation,
   canCompleteEvidence,
-  evidenceOutcome,
+  evidenceOutcome, evidenceConfirmation,
 } from "../src/games/inicio/evaluation";
 import {
   freshAttempt as currentAttempt,
@@ -94,7 +94,11 @@ test("three attempts retain best grade, complete with support and survive serial
       type: "evaluateEvidence",
       value,
     });
+  assert.equal(a.completedAt,undefined);
+  assert.throws(()=>reduceMission(a,{type:"complete"}));
+  a=reduceMission(a,{type:"continueEvidence",value:evidenceConfirmation(a.evidenceEvaluations)});
   assert.ok(a.completedAt);
+  assert.equal(a.evidenceAcceptance?.evaluations,3);
   assert.equal(a.evidenceEvaluations?.length, 3);
   assert.equal(bestEvaluation(a.evidenceEvaluations)?.attempt, 1);
   assert.equal(
@@ -136,3 +140,19 @@ test("best score and attempt gate cannot be raised by repeating or blank submiss
 
 // Explicit historical fixtures: preserve saved questionnaire attempts alongside the new simulation.
 function freshAttempt(...args:Parameters<typeof currentAttempt>){const a=currentAttempt(...args);delete a.simulation;return a;}
+
+test("a low first evaluation may finish only after explicit confirmation of the saved best response",()=>{
+ let a=reduceMission(finalStage(),{type:"evaluateEvidence",value:"Camila debe informar al SII el inicio de su negocio."});
+ assert.equal(a.completedAt,undefined);
+ assert.throws(()=>reduceMission(a,{type:"continueEvidence",value:"1:100"}));
+ const token=evidenceConfirmation(a.evidenceEvaluations);const changed=reduceMission(a,{type:"evaluateEvidence",value:"Todavía necesito revisar los contenidos."});assert.throws(()=>reduceMission(changed,{type:"continueEvidence",value:token}));
+ const snapshot=JSON.stringify(a.evidenceEvaluations);
+ a=reduceMission(a,{type:"evidence",value:"Un borrador distinto que todavía no se evalúa."});
+ a=reduceMission(a,{type:"continueEvidence",value:evidenceConfirmation(a.evidenceEvaluations)});
+ assert.ok(a.completedAt);assert.equal(a.evidence,a.evidenceEvaluations![0].response);
+ assert.equal(a.evidenceGradePolicy,"camila-evidence-20-v1");assert.equal(JSON.stringify(a.evidenceEvaluations),snapshot);
+ const imported=importAttempt({...a,evidenceAcceptance:{bestScore:100,evaluations:99,acceptedAt:"fake"}},a.id);
+ assert.equal(imported.evidenceAcceptance?.bestScore,a.evidenceResult?.bestScore);
+ assert.equal(imported.evidenceAcceptance?.evaluations,1);
+ assert.throws(()=>reduceMission(finalStage(),{type:"continueEvidence",value:"0:0"}));
+});

@@ -1,3 +1,4 @@
+import { evidenceConfirmation } from "../src/games/inicio/evaluation";
 import React from "react";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -44,6 +45,7 @@ test("eight city levels and documentary puzzle pass through the real mission red
       "El aviso comunica la actividad; los respaldos deben coincidir con el domicilio. La verificación puede incluir una visita coordinada y no sustituye los otros permisos.",
   });
   for (let retry=0; retry<3 && !a.completedAt; retry++) a = reduceMission(a, { type: "evaluateEvidence", value:a.evidence });
+  a=reduceMission(a,{type:"continueEvidence",value:evidenceConfirmation(a.evidenceEvaluations)});
   assert.ok(a.completedAt);
   assert.equal(scoreAttempt(a), 8);
   assert.throws(() => reduceMission(a, { type: "complete" }));
