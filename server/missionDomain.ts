@@ -1,4 +1,9 @@
 import {
+  applyManagement,
+  managementAnswer,
+  managementStages,
+} from "../src/games/inicio/management.js";
+import {
   applySimulation,
   initialSimulation,
 } from "../src/games/inicio/simulation.js";
@@ -49,6 +54,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   demand(
     event &&
       [
+        "manage",
         "continueEvidence",
         "simulation",
         "answer",
@@ -59,6 +65,13 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
         "complete",
       ].includes(event.type),
   );
+  if (event.type === "manage") {
+    try {
+      return applyManagement(previous, JSON.parse(text(event.value, 1000)));
+    } catch (error) {
+      demand(false, (error as Error).message);
+    }
+  }
   if (event.type === "simulation") {
     try {
       const value = text(event.value, 1000);
@@ -82,6 +95,10 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   const a = structuredClone(previous);
   const step = m.steps[a.index];
   if (event.type === "answer") {
+    demand(
+      !a.management?.drafts[a.index],
+      "Utiliza la mesa de gestión de esta etapa.",
+    );
     demand(step && !a.confirmed[a.index]);
     const value = text(event.value, 40);
     demand(
@@ -92,6 +109,13 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
     a.answers[a.index] = value;
   }
   if (event.type === "confirm") {
+    if (a.management?.drafts[a.index]) {
+      const derived = managementAnswer(a.index, a.management.drafts[a.index]);
+      demand(
+        derived !== "" && derived === a.answers[a.index],
+        "Completa la gestión antes de confirmarla.",
+      );
+    }
     demand(
       step && !a.confirmed[a.index] && !!a.answers[a.index]?.trim(),
       "Responde antes de comprobar.",
@@ -189,7 +213,16 @@ export function importAttempt(raw: unknown, id: string): Attempt {
       }
       break;
     }
-    if (v.answers[i] !== undefined && v.answers[i] !== "")
+    if (v.management?.drafts?.[i]) {
+      demand(managementStages[i] && v.management.version === 1);
+      const fields = v.management.drafts[i];
+      demand(fields && typeof fields === "object" && !Array.isArray(fields));
+      for (const [field, value] of Object.entries(fields))
+        state = reduceMission(state, {
+          type: "manage",
+          value: JSON.stringify({ field, value }),
+        });
+    } else if (v.answers[i] !== undefined && v.answers[i] !== "")
       state = reduceMission(state, { type: "answer", value: v.answers[i] });
     if (v.confirmed[i] === true) {
       state = reduceMission(state, { type: "confirm" });
