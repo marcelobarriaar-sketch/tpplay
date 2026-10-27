@@ -318,7 +318,7 @@ export function ManagementGame({
                     ["first", "Primer mes siguiente"],
                     ["second", "Segundo mes siguiente"],
                   ].map(([field, label]) => (
-                    <label
+                    <div
                       className="field management-calendar-slot"
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => {
@@ -328,7 +328,7 @@ export function ManagementGame({
                       }}
                       key={field}
                     >
-                      {label}
+                      <label htmlFor={`management-${field}`}>{label}</label>
                       {month && (
                         <button
                           type="button"
@@ -338,7 +338,7 @@ export function ManagementGame({
                           Colocar aquí el mes seleccionado
                         </button>
                       )}
-                      <select
+                      <select id={`management-${field}`}
                         value={f[field] || ""}
                         onChange={(e) => set(field, e.target.value)}
                       >
@@ -349,7 +349,7 @@ export function ManagementGame({
                         <option value="oct">Octubre 2026</option>
                         <option value="nov">Noviembre 2026</option>
                       </select>
-                    </label>
+                    </div>
                   ))}
                 </div>
                 <h3>Programa el cierre</h3>
