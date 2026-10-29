@@ -1,3 +1,4 @@
+import GuestGame from "../games/coihue/GuestGame";
 import { AcademicFields } from './AcademicSetup';
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
@@ -35,44 +36,9 @@ export function AccountUnavailable() {
   );
 }
 export function AdventureEntry() {
-  const { profile, loading, error } = useAccount();
-  if (loading) return <p role="status">Comprobando tu acceso…</p>;
-  if (profile?.role === "student")
-    return <Navigate replace to="/juegos/mision-tributos" />;
-  if (!authClient) return <AccountUnavailable />;
-  return (
-    <section className="panel account-panel">
-      <p className="eyebrow">BIENVENIDO A VALLE DEL COIHUE</p>
-      <h1>Comienza tu aventura</h1>
-      <p>
-        Tu cuenta permite continuar desde otro dispositivo y recibir la
-        retroalimentación de tu docente.
-      </p>
-      {error && <p role="alert">{error}</p>}
-      {profile ? (
-        <>
-          <p>Tu cuenta tiene acceso docente o administrativo.</p>
-          <Link className="button" to="/acompanamiento">
-            Abrir mi panel
-          </Link>
-        </>
-      ) : (
-        <div className="valley-actions">
-          <Link className="button" to="/cuenta/ingresar">
-            Ingresar
-          </Link>
-          <Link className="button secondary" to="/cuenta/crear">
-            Crear mi cuenta
-          </Link>
-        </div>
-      )}
-      <p className="muted small">
-        No necesitas RUT, domicilio ni fecha de nacimiento.{" "}
-        <Link to="/cuenta/privacidad">Conoce cómo cuidamos tus datos.</Link>
-      </p>
-    </section>
-  );
+  return <GuestGame />;
 }
+
 export function AccountAccess() {
   const { pathname } = useLocation();
   const mode =

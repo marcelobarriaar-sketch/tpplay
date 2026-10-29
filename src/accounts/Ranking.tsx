@@ -1,20 +1,21 @@
 import {useEffect,useState,useRef} from 'react';
-import {Link} from 'react-router-dom';
+import {Link,useSearchParams} from 'react-router-dom';
 import {Guard} from './Identity';
 import {useAccount} from './Session';
 import {learningApi} from './client';
 type Row={alias:string;coins:number;position:number|null;isYou:boolean};
 type Board={management?:Board;total:number;updatedAt:string;you:{alias:string;coins:number;position:number|null;previousPosition:number|null;movement:number|null;referenceAt:string|null};rows:Row[]};
 export function CoinRanking({compact=false}:{compact?:boolean}){
+ const [params]=useSearchParams(); const free=params.get("modo")==="libre";
  const {profile}=useAccount();const [data,setData]=useState<Board|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [mode,setMode]=useState<'rewards'|'management'>('rewards');
  const owner=useRef(profile?.id);owner.current=profile?.id;
  useEffect(()=>{setData(null);setError('');},[profile?.id]);
  async function load(){const own=profile?.id;setBusy(true);try{const next=await learningApi<Board>('ranking');if(own===owner.current){setData(next);setError('');}}catch(e){if(own===owner.current)setError((e as Error).message);}finally{if(own===owner.current)setBusy(false);}}
- useEffect(()=>{if(profile?.role!=='student')return;let active=true;
+ useEffect(()=>{if(free||profile?.role!=='student')return;let active=true;
  const refresh=async()=>{try{const next=await learningApi<Board>('ranking');if(active){setData(next);setError('');}}catch(e){if(active)setError((e as Error).message);}};
- void refresh();const timer=setInterval(()=>{if(document.visibilityState==='visible')void refresh();},30000);return()=>{active=false;clearInterval(timer);};},[profile?.id,profile?.role]);
- if(profile?.role!=='student')return <section className="panel spaced"><h2>Coihues y ranking</h2><p>Además de aprender, irás acumulando Coihues, la moneda de Villa del Coihue. Ingresa con una cuenta de estudiante para ver tu saldo y comparar tu avance con otros participantes. El avance como invitado no entra al ranking.</p><Link className="button" to="/cuenta/ingresar">Ingresar</Link></section>;
+ void refresh();const timer=setInterval(()=>{if(document.visibilityState==='visible')void refresh();},30000);return()=>{active=false;clearInterval(timer);};},[profile?.id,profile?.role,free]);
+ if(free||profile?.role!=='student')return <section className="panel spaced"><h2>Coihues y ranking</h2><p>Además de aprender, irás acumulando Coihues, la moneda de Villa del Coihue. Ingresa con una cuenta de estudiante para ver tu saldo y comparar tu avance con otros participantes. El avance como invitado no entra al ranking.</p><Link className="button" to="/cuenta/ingresar">Ingresar</Link></section>;
  const selected=mode==='management'?data?.management:data;
  const board=selected;
  return <section className="panel spaced coin-ranking" aria-label="Coihues y ranking"><p className="eyebrow">VILLA DEL COIHUE · TU RECORRIDO</p><h2>{compact?'Tus Coihues y tu posición':'Ranking de Coihues'}</h2><div className="valley-actions"><button className="button secondary" aria-pressed={mode==='rewards'} onClick={()=>setMode('rewards')}>Participación</button><button className="button secondary" aria-pressed={mode==='management'} onClick={()=>setMode('management')}>Gestión del negocio</button></div>{mode==='management'&&<p>Clasificación por el mayor presupuesto conservado al terminar Inicio de actividades. Se cuenta tu mejor intento verificado por el servidor, sin sumar partidas repetidas. Los intentos anteriores a esta mecánica y las importaciones locales no participan.</p>}<p>Además de aprender, irás acumulando Coihues, la moneda de Villa del Coihue: $100 Coihues al completar una misión por primera vez y $50 Coihues adicionales al mejorarla una vez. Conservas tu saldo anterior: cada punto de experiencia equivale a $1 Coihue.</p>

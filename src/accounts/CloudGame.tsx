@@ -3,15 +3,17 @@ import { CoinRanking } from "./Ranking";
 import { useEffect, useRef, useState } from "react";
 import { useAccount } from "./Session";
 import { learningApi } from "./client";
-import { AdventureEntry } from "./Account";
-import { Link } from "react-router-dom";
+import GuestGame from "../games/coihue/GuestGame";
+import { Link, useSearchParams } from "react-router-dom";
 import { completed, type Progress } from "../games/coihue/progress";
 import { missions as coihueMissions } from "../games/coihue/content";
 import type { GameEvent } from "../../server/learningDomain";
 import CoihueGame from "../games/coihue/Game";
 type Saved = { state: Progress; revision: number; owner?: string };
 export default function CloudGame() {
-  const { profile, loading, error } = useAccount();
+  const { profile, session, loading } = useAccount();
+  const [params] = useSearchParams();
+  const guest = params.get("modo") === "libre" || (!session && !profile) || (!!profile && profile.role !== "student");
   const currentUser = useRef(profile?.id);
   currentUser.current = profile?.id;
   const [saved, setSaved] = useState<Saved | null>(null);
@@ -40,8 +42,8 @@ export default function CloudGame() {
   useEffect(() => {
     setSaved(null);
     savedRef.current = null;
-    if (profile?.role === "student") void load();
-  }, [profile?.id]);
+    if (!guest && profile?.role === "student") void load();
+  }, [profile?.id, guest]);
   const send = async (event: GameEvent, retry?: typeof pending) => {
     if (
       busyRef.current ||
@@ -72,30 +74,11 @@ export default function CloudGame() {
       busyRef.current = false;
     }
   };
-  if (loading) return <p role="status">Comprobando tu acceso…</p>;
-  if (!profile)
-    return error ? (
-      <section className="panel">
-        <p role="alert">{error}</p>
-        <Link to="/cuenta">Revisar acceso</Link>
-      </section>
-    ) : (
-      <AdventureEntry />
-    );
-  if (profile.role !== "student")
-    return (
-      <section className="panel">
-        <h1>Valle del Coihue</h1>
-        <p>
-          Esta aventura guarda evidencias en cuentas de estudiante. Puedes
-          revisar el contenido desde el repositorio y acompañar a tus cursos en
-          el panel docente.
-        </p>
-        <Link to="/acompanamiento">Abrir panel docente</Link>
-      </section>
-    );
+  if (guest) return <GuestGame />;
+  if (loading || !profile) return <p role="status">Comprobando tu acceso…</p>;
   return (
     <>
+      <Link className="text-link spaced" to="/juegos/mision-tributos?modo=libre">Explorar la ciudad sin registrar una calificación</Link>
       <p className="muted small" role="status">
         {busy
           ? "Guardando en tu cuenta…"

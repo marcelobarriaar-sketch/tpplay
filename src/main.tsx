@@ -276,14 +276,11 @@ function AccountLayout() {
 }
 function MissionEntry({ result = false }: { result?: boolean }) {
   const { profile, session, loading } = useAccount();
-  if (loading) return <p role="status">Comprobando sesión…</p>;
-  return profile || session ? (
-    <CloudMission result={result} />
-  ) : result ? (
-    <Results />
-  ) : (
-    <Player />
-  );
+  const { search, pathname } = useLocation();
+  const free = new URLSearchParams(search).get("modo") === "libre";
+  if (!free && loading && session) return <p role="status">Comprobando sesión…</p>;
+  if (!free && (profile?.role === "student" || (session && !profile))) return <>{!result&&<Link className="text-link spaced" to={`${pathname}?modo=libre`}>Probar sin registrar una calificación</Link>}<CloudMission result={result}/></>;
+  return <><section className="notice"><strong>Experiencia libre · sin cuenta obligatoria</strong><p>Puedes jugar y descubrir lo que aprendes. El avance queda en este navegador; para registrar puntos y calificaciones, usa una cuenta de estudiante.</p><Link className="text-link" to="/cuenta/crear">Crear mi cuenta</Link></section>{result ? <Results /> : <Player />}</>;
 }
 function AdminEntry() {
   const { profile, session, loading } = useAccount();

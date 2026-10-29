@@ -32,7 +32,7 @@ export default function ValleyWelcome() {
           </strong>
         </p>
         <Link className="button" to="/aventura">
-          Comenzar mi aventura <span aria-hidden="true">→</span>
+          Explorar la ciudad sin cuenta <span aria-hidden="true">→</span>
         </Link>
       </div>
       <div className="valley-home-landscape" aria-hidden="true">
