@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { reduceGame, type GameEvent } from '../../../server/learningDomain';
 import { restore, storageKey } from './progress';
 import CoihueGame from './Game';
 
 /** Public practice never calls the learning API or writes academic records. */
 export default function GuestGame() {
+  const [params] = useSearchParams();
   const [game, setGame] = useState(() => {
-    try { return restore(typeof localStorage === "undefined" ? null : localStorage.getItem(storageKey)); }
+    try {
+      const restored = restore(typeof localStorage === "undefined" ? null : localStorage.getItem(storageKey));
+      return params.get("vista") === "mapa" ? { ...restored, state: { ...restored.state, started: true } } : restored;
+    }
     catch { return { ...restore(null), notice: 'Puedes jugar, pero este navegador no permite conservar el avance.' }; }
   });
   const [storageError, setStorageError] = useState('');

@@ -31,3 +31,10 @@ test('public mode can progress, restore and unlock the next chapter without acad
  assert.doesNotMatch(html,/Guardar mi explicación para el docente|avance en servidor/);
  assert.match(html,/Crear cuenta · registrar aprendizaje/);
 });
+
+test('homepage map shortcut opens the map directly without an account', () => {
+ const html = renderToStaticMarkup(<MemoryRouter initialEntries={['/aventura?vista=mapa']}><CloudGame/></MemoryRouter>);
+ assert.match(html, /Explora Valle del Coihue/);
+ assert.match(html, /Comenzar misión/);
+ assert.doesNotMatch(html, /Comenzar a jugar/);
+});
