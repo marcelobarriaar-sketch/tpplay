@@ -1,3 +1,4 @@
+import { WorkbenchChoices as Choice } from '../WorkbenchChoices';
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -57,38 +58,6 @@ function Invoice({
         <dd>{money(purchase ? 119000 : 238000)}</dd>
       </dl>
     </article>
-  );
-}
-function Choice({
-  field,
-  label,
-  options,
-  fields,
-  set,
-  disabled,
-}: {
-  field: string;
-  label: string;
-  options: [string, string][];
-  fields: IvaFields;
-  set: (key: string, value: string) => void;
-  disabled: boolean;
-}) {
-  return (
-    <fieldset className="iva-choices" disabled={disabled}>
-      <legend>{label}</legend>
-      {options.map(([value, text]) => (
-        <button
-          type="button"
-          key={value}
-          className={`iva-token ${fields[field] === value ? "selected" : ""}`}
-          aria-pressed={fields[field] === value}
-          onClick={() => set(field, value)}
-        >
-          {text}
-        </button>
-      ))}
-    </fieldset>
   );
 }
 export function IvaGame({

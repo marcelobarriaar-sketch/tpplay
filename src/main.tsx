@@ -66,6 +66,7 @@ import { AcademicDashboard } from "./accounts/AcademicDashboard";
 import "./styles.css";
 import "./games/coihue/game.css";
 import "./games/iva/game.css";
+import "./games/invernadero/game.css";
 const AccountArea = lazy(() => import("./accounts/Area"));
 const AccountRoute = () => (
   <Suspense fallback={<p role="status">Preparando tu espacio…</p>}>

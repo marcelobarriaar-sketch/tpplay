@@ -1,0 +1,350 @@
+.gh-game {
+  max-width: 1100px;
+  margin: auto;
+}
+.gh-hud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #162f2a;
+  border: 1px solid #547e66;
+  border-radius: 18px;
+  margin-bottom: 1rem;
+}
+.gh-hud span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.gh-start {
+  margin: 1rem 0;
+}
+.gh-story {
+  display: grid;
+  grid-template-columns: minmax(190px, 300px) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+.gh-story > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3/2;
+  object-fit: cover;
+  border-radius: 18px;
+}
+.gh-story h1 {
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+.gh-story blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid #b5ed66;
+}
+.gh-desk {
+  margin-top: 1rem;
+}
+.gh-desk h2,
+.gh-notebook h3 {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.gh-scene {
+  position: relative;
+  min-height: 360px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #547e66;
+}
+.gh-scene > img {
+  display: block;
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+.gh-hotspot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 48px;
+  padding: 0.7rem 1rem;
+  background: #14291eed;
+  color: #fff;
+  border: 2px solid #b5ed66;
+  border-radius: 14px;
+  font: inherit;
+  cursor: pointer;
+}
+.station-temperature {
+  top: 10%;
+  left: 5%;
+}
+.station-ventilation {
+  top: 10%;
+  right: 5%;
+}
+.station-soil {
+  bottom: 12%;
+  left: 5%;
+}
+.station-leaves {
+  bottom: 12%;
+  right: 5%;
+}
+.gh-reading {
+  border-left: 4px solid #b5ed66;
+  padding: 1rem;
+  background: #182b29;
+  margin: 1rem 0;
+  border-radius: 10px;
+}
+.gh-reading h3 {
+  margin-top: 0;
+}
+.gh-notebook {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #55715f;
+  border-radius: 16px;
+}
+.gh-evidence-cards,
+.gh-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.gh-choices {
+  padding: 0;
+  border: 0;
+  margin: 1rem 0;
+}
+.gh-choices legend {
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+.gh-token,
+.gh-slot {
+  font: inherit;
+  min-height: 48px;
+  padding: 0.8rem 1rem;
+  border: 2px solid #64756c;
+  background: #132335;
+  color: inherit;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.gh-token.selected,
+.gh-slot.selected {
+  border-color: #d5ff52;
+  background: #2b3c30;
+}
+.gh-evidence-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.gh-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-style: dashed;
+  min-height: 105px;
+}
+.gh-game button:focus-visible {
+  outline: 3px solid #d5ff52;
+  outline-offset: 4px;
+}
+.gh-game button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.gh-plan {
+  position: relative;
+  background: #172b29;
+  border: 1px solid #53785f;
+  border-radius: 18px;
+  padding: 4rem 1rem 1rem;
+  text-align: center;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.gh-roof {
+  height: 20px;
+  position: absolute;
+  top: 15px;
+  left: 25%;
+  width: 50%;
+  border: 4px solid #8ca68b;
+  border-bottom: 0;
+  transform: perspective(50px) rotateX(20deg);
+}
+.gh-window {
+  position: absolute;
+  top: 65px;
+  width: 40px;
+  height: 60px;
+  background: #34484a;
+  border: 3px solid #a1bead;
+  transition: transform 0.3s;
+}
+.gh-window.left {
+  left: 15%;
+}
+.gh-window.right {
+  right: 15%;
+}
+.gh-plan.open .gh-window.left {
+  transform: perspective(80px) rotateY(-55deg);
+  background: #81c5cc;
+}
+.gh-plan.open .gh-window.right {
+  transform: perspective(80px) rotateY(55deg);
+  background: #81c5cc;
+}
+.gh-crop {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  color: #a7d977;
+  margin: 1rem;
+}
+.gh-crop svg {
+  width: 36px;
+  height: 36px;
+}
+.gh-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.gh-comparison article {
+  padding: 1rem;
+  border: 1px solid #627b6a;
+  border-radius: 16px;
+  background: #172b29;
+}
+.gh-comparison strong {
+  font-size: 2rem;
+}
+.gh-context {
+  border-top: 1px solid #526457;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+}
+.gh-context summary {
+  padding: 0.6rem 0;
+  cursor: pointer;
+  min-height: 44px;
+}
+.gh-game .task-actions {
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.gh-game textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 230px;
+  resize: vertical;
+}
+.gh-ending {
+  margin: 1rem 0;
+}
+.gh-game .field {
+  margin: 1rem 0;
+}
+@media (max-width: 650px) {
+  .gh-story {
+    grid-template-columns: 1fr;
+  }
+  .gh-story > img {
+    max-width: 260px;
+  }
+  .gh-hud {
+    font-size: 0.85rem;
+  }
+  .gh-desk {
+    padding: 1rem;
+  }
+  .gh-scene > img {
+    height: 350px;
+  }
+  .gh-hotspot {
+    font-size: 0.8rem;
+    padding: 0.6rem;
+    gap: 0.3rem;
+  }
+  .station-temperature,
+  .station-soil {
+    left: 3%;
+  }
+  .station-ventilation,
+  .station-leaves {
+    right: 3%;
+  }
+  .gh-hotspot svg {
+    width: 16px;
+  }
+  .gh-evidence-slots,
+  .gh-comparison {
+    grid-template-columns: 1fr;
+  }
+  .gh-token,
+  .gh-game .task-actions .button {
+    width: 100%;
+    text-align: left;
+    white-space: normal;
+  }
+  .gh-game .task-actions .button {
+    justify-content: center;
+  }
+  .gh-start .button {
+    width: 100%;
+    white-space: normal;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gh-window {
+    transition: none;
+  }
+}
+
+.gh-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #64756c;
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+
+  background: #172b29;
+  font-size: 0.9rem;
+}
+.gh-note > span {
+  user-select: none;
+}
+.gh-connect {
+  font: inherit;
+  min-height: 44px;
+  padding: 0.5rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid #a9c18b;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+@media (max-width: 650px) {
+  .gh-note {
+    width: 100%;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+  .gh-note > span {
+    min-width: 0;
+  }
+}
