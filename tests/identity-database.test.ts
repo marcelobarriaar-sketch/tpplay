@@ -252,6 +252,29 @@ test("Identity migrations: public roles, server progress across sessions, immuta
     }
     assert.equal((await db.query<{xp:number}>('select sum(amount)::integer xp from xp_events where student_id=$1',[student])).rows[0].xp,150);
     // The opening badge is atomic with the saved server state, never auto-unlocked by generic XP.
+    // New IVA desks round-trip through the existing persistent API commit contract.
+    {
+      const ivaStudent=randomUUID();
+      await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)',[ivaStudent,'iva-desk@example.test',{first_name:'Alumno',last_name:'IVA',initial_role:'student',terms_version:'2026-10'}]);
+      let iva=currentAttempt(randomUUID(),'mision-iva'), rev=0;
+      async function saveIva(eventId=randomUUID()) {
+        const saved=await db.query<{value:{state:typeof iva;revision:number}}>('select commit_mission($1,$2,$3,$4,$5,$6,$7,3,$8,false) value',[ivaStudent,iva.id,iva.missionSlug,iva.version,rev,iva,scoreAttempt(iva),eventId]);
+        rev=saved.rows[0].value.revision;
+        iva=saved.rows[0].value.state;
+      }
+      iva=reduceMission(iva,{type:'iva',value:JSON.stringify({action:'save',fields:{a:'purchase'}})});
+      await saveIva(); assert.equal(iva.iva?.drafts[0].a,'purchase');assert.equal(iva.confirmed[0],undefined);
+      for(const fields of [{a:'purchase',b:'sale'},{base:'200000',amount:'38000'},{debit:'38000',credit:'19000',operation:'subtract',amount:'19000'}]) {
+        iva=reduceMission(iva,{type:'iva',value:JSON.stringify({action:'check',fields})});await saveIva();
+        iva=reduceMission(iva,{type:'next'});await saveIva();
+      }
+      iva=reduceMission(iva,{type:'evidence',value:'Diego, el crédito de compras admitido se descuenta del débito. Revisaría las facturas y sus requisitos antes de usar el cálculo.'});await saveIva();
+      iva=reduceMission(iva,{type:'complete'});const finalEvent=randomUUID();await saveIva(finalEvent);
+      await db.query('select commit_mission($1,$2,$3,$4,$5,$6,$7,3,$8,false)',[ivaStudent,iva.id,iva.missionSlug,iva.version,rev-1,iva,scoreAttempt(iva),finalEvent]);
+      const restored=(await db.query<{state:typeof iva}>('select state from mission_attempts where id=$1',[iva.id])).rows[0].state;
+      assert.deepEqual(restored.iva,iva.iva);assert.equal(scoreAttempt(restored),3);assert.ok(restored.completedAt);
+      assert.equal((await db.query<{n:number}>('select count(*)::integer n from xp_events where student_id=$1',[ivaStudent])).rows[0].n,1);
+    }
     {const simulationStudent=randomUUID();await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)',[simulationStudent,'simulation@example.test',{first_name:'Alumno',last_name:'Integración',initial_role:'student',terms_version:'2026-10'}]);let opening=currentAttempt(randomUUID(),'inicio-actividades');const events=[{action:'begin'},{action:'talk',value:'business'},{action:'talk',value:'pending'},{action:'map'},{action:'travel',value:'sii'},{action:'investigate'},{action:'place',value:'notice',target:'sii'},{action:'place',value:'permit',target:'municipality'},{action:'prepare'},{action:'draft',value:'person',target:'natural'},{action:'draft',value:'activity',target:'meals'},{action:'draft',value:'procedure',target:'start'},{action:'submit'}];for(const event of events)opening=reduceMission(opening,{type:'simulation',value:JSON.stringify(event)});await db.query('select commit_mission($1,$2,$3,$4,0,$5,$6,8,$7,false)',[simulationStudent,opening.id,opening.missionSlug,opening.version,opening,scoreAttempt(opening),randomUUID()]);assert.equal((await db.query<{n:number}>("select count(*)::integer n from user_achievements where student_id=$1 and achievement_code='camila-primer-paso'",[simulationStudent])).rows[0].n,1);assert.equal((await db.query<{n:number}>("select count(*)::integer n from user_achievements where student_id=$1 and achievement_code='camila-primer-paso'",[other])).rows[0].n,0);opening=reduceMission(opening,{type:'next'});for(const [field,value] of Object.entries({origin:'restaurant',channel:'treasury'}))opening=reduceMission(opening,{type:'manage',value:JSON.stringify({field,value})});await db.query('select commit_mission($1,$2,$3,$4,1,$5,$6,8,$7,false)',[simulationStudent,opening.id,opening.missionSlug,opening.version,opening,scoreAttempt(opening),randomUUID()]);const savedManagement=(await db.query<{state:typeof opening}>('select state from mission_attempts where id=$1',[opening.id])).rows[0].state;assert.equal(savedManagement.management?.drafts[1].origin,'restaurant');assert.equal(savedManagement.answers[1],'2');assert.equal(savedManagement.confirmed[1],undefined);opening=reduceMission(savedManagement,{type:'confirm'});await db.query('select commit_mission($1,$2,$3,$4,2,$5,$6,8,$7,false)',[simulationStudent,opening.id,opening.missionSlug,opening.version,opening,scoreAttempt(opening),randomUUID()]);assert.equal((await db.query<{state:typeof opening}>('select state from mission_attempts where id=$1',[opening.id])).rows[0].state.confirmed[1],true);}
 
     // Camila evaluations use the same durable JSON transaction, event idempotency and RLS.

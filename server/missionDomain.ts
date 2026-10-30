@@ -1,3 +1,4 @@
+import { applyIva, ivaAnswer } from "../src/games/iva/domain.js";
 import {
   applyManagement,
   managementAnswer,
@@ -54,6 +55,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   demand(
     event &&
       [
+        "iva",
         "manage",
         "continueEvidence",
         "simulation",
@@ -65,6 +67,13 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
         "complete",
       ].includes(event.type),
   );
+  if (event.type === "iva") {
+    try {
+      return applyIva(previous, JSON.parse(text(event.value, 1200)));
+    } catch (error) {
+      demand(false, (error as Error).message);
+    }
+  }
   if (event.type === "manage") {
     try {
       return applyManagement(previous, JSON.parse(text(event.value, 1000)));
@@ -96,7 +105,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   const step = m.steps[a.index];
   if (event.type === "answer") {
     demand(
-      !a.management?.drafts[a.index],
+      !a.management?.drafts[a.index] && !a.iva,
       "Utiliza la mesa de gestión de esta etapa.",
     );
     demand(step && !a.confirmed[a.index]);
@@ -109,6 +118,12 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
     a.answers[a.index] = value;
   }
   if (event.type === "confirm") {
+    if (a.iva?.drafts[a.index])
+      demand(
+        ivaAnswer(a.index, a.iva.drafts[a.index]) !== "" &&
+          ivaAnswer(a.index, a.iva.drafts[a.index]) === a.answers[a.index],
+        "Completa la mesa de IVA antes de confirmar.",
+      );
     if (a.management?.drafts[a.index]) {
       const derived = managementAnswer(a.index, a.management.drafts[a.index]);
       demand(
@@ -213,7 +228,13 @@ export function importAttempt(raw: unknown, id: string): Attempt {
       }
       break;
     }
-    if (v.management?.drafts?.[i]) {
+    if (v.iva?.drafts?.[i]) {
+      demand(m.slug === "mision-iva" && v.iva.version === 1);
+      state = reduceMission(state, {
+        type: "iva",
+        value: JSON.stringify({ action: "save", fields: v.iva.drafts[i] }),
+      });
+    } else if (v.management?.drafts?.[i]) {
       demand(managementStages[i] && v.management.version === 1);
       const fields = v.management.drafts[i];
       demand(fields && typeof fields === "object" && !Array.isArray(fields));
