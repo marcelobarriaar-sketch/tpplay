@@ -194,6 +194,13 @@ export function IvaGame({
       >
         <span style={{ width: `${index * 25}%` }} />
       </div>
+      <div className="iva-start">
+          {!started && (
+            <button className="button" onClick={() => setStarted(true)}>
+              Recibir la carpeta y jugar <ArrowRight size={18} />
+            </button>
+          )}
+      </div>
       <section className="panel iva-story">
         <CitizenPortrait character="diego" />
         <div>
@@ -213,11 +220,7 @@ export function IvaGame({
                   : "¿Por qué descontamos el IVA de compras en este caso y qué revisaríamos antes de hacerlo en otra empresa?"}
             »
           </blockquote>
-          {!started && (
-            <button className="button" onClick={() => setStarted(true)}>
-              Recibir la carpeta y jugar <ArrowRight size={18} />
-            </button>
-          )}
+
         </div>
       </section>
       {started && (
