@@ -1,0 +1,208 @@
+.iva-game {
+  max-width: 1100px;
+  margin: auto;
+}
+.iva-hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--line, #42485e);
+  border-radius: 18px;
+  background: #151d35;
+  margin-bottom: 1rem;
+}
+.iva-hud span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.iva-story {
+  display: grid;
+  grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+.iva-story .tribute-portrait {
+  width: 100%;
+  max-height: 315px;
+}
+.iva-story h1 {
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+}
+.iva-desk {
+  margin-top: 1rem;
+}
+.iva-desk h2 {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+.iva-documents,
+.iva-workspace,
+.iva-ledger {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.iva-invoice {
+  border: 1px solid #65708a;
+  border-radius: 16px;
+  padding: 1.2rem;
+  background: #10192b;
+}
+.iva-invoice dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.iva-invoice dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+}
+.iva-invoice p {
+  font-size: 0.95rem;
+}
+.iva-documents > div > .button {
+  margin-top: 0.7rem;
+}
+.iva-folders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+.iva-folder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  border: 2px dashed #9d7de0;
+  border-radius: 16px;
+  padding: 1rem;
+  color: inherit;
+  background: #1d2441;
+  min-height: 120px;
+  font: inherit;
+  cursor: pointer;
+}
+.iva-folder small {
+  font-size: 0.8rem;
+}
+.iva-choices {
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.iva-choices legend {
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+.iva-token {
+  border: 2px solid #68728b;
+  border-radius: 12px;
+  min-height: 48px;
+  padding: 0.8rem;
+  color: inherit;
+  background: #121b31;
+  font: inherit;
+  cursor: pointer;
+}
+.iva-token.selected {
+  border-color: #d5ff52;
+  background: #2a3541;
+}
+.iva-token:focus-visible,
+.iva-folder:focus-visible {
+  outline: 3px solid #d5ff52;
+  outline-offset: 4px;
+}
+.iva-game button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.iva-formula {
+  padding: 1rem;
+  background: #10192b;
+  border-radius: 12px;
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.iva-case {
+  margin-top: 1.5rem;
+  border-top: 1px solid #42485e;
+  padding-top: 1rem;
+}
+.iva-case summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0.5rem 0;
+}
+.iva-desk input,
+.iva-desk textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.iva-ending {
+  margin: 1rem 0;
+}
+.iva-game .task-actions {
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.iva-game .task-actions .button {
+  white-space: normal;
+}
+.iva-story blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid #a77afa;
+}
+.iva-game .field {
+  margin: 1rem 0;
+}
+.iva-game textarea {
+  min-height: 230px;
+  resize: vertical;
+}
+@media (max-width: 650px) {
+  .iva-story {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .iva-story .tribute-portrait {
+    width: 130px;
+    max-height: 195px;
+  }
+  .iva-documents,
+  .iva-workspace,
+  .iva-ledger {
+    grid-template-columns: 1fr;
+  }
+  .iva-folders {
+    grid-template-columns: 1fr;
+  }
+  .iva-folder {
+    min-height: 70px;
+  }
+  .iva-hud {
+    font-size: 0.85rem;
+    gap: 0.6rem;
+  }
+  .iva-game .task-actions .button {
+    width: 100%;
+  }
+  .iva-desk {
+    padding: 1rem;
+  }
+  .iva-token {
+    width: 100%;
+    text-align: left;
+  }
+}
