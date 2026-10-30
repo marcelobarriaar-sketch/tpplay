@@ -1,8 +1,9 @@
+import { validateFieldDraft, greenhouseAnswer } from './games/invernadero/domain.js';
 import { validateIvaFields, ivaAnswer } from './games/iva/domain.js';
 import { initialSimulation, applySimulation } from "./games/inicio/simulation.js";
 import type { EvidenceEvaluation } from './games/inicio/evaluation.js';
 import { missions } from './data.js';
-export type Attempt = { iva?: import("./games/iva/domain.js").IvaState; management?: import("./games/inicio/management.js").ManagementState; evidenceGradePolicy?: "camila-evidence-20-v1"; evidenceAcceptance?: { evaluations:number; bestScore:number; acceptedAt:string }; simulation?: import("./games/inicio/simulation.js").SimulationState; financialResult?: {balance:number;gained:number;spent:number}; evidenceResult?: {bestScore:number;bestAttempt:number;attempts:number;outcome:string}; evidenceEvaluations?: EvidenceEvaluation[]; economyVersion?: 1; id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
+export type Attempt = { greenhouse?: import("./games/invernadero/domain.js").GreenhouseState; iva?: import("./games/iva/domain.js").IvaState; management?: import("./games/inicio/management.js").ManagementState; evidenceGradePolicy?: "camila-evidence-20-v1"; evidenceAcceptance?: { evaluations:number; bestScore:number; acceptedAt:string }; simulation?: import("./games/inicio/simulation.js").SimulationState; financialResult?: {balance:number;gained:number;spent:number}; evidenceResult?: {bestScore:number;bestAttempt:number;attempts:number;outcome:string}; evidenceEvaluations?: EvidenceEvaluation[]; economyVersion?: 1; id: string; missionSlug: string; version: string; createdAt: string; completedAt?: string; answers: string[]; confirmed: boolean[]; index: number; evidence: string };
 export type DemoState = { schema: 1; attempts: Attempt[]; reducedMotion: boolean };
 export const initialState: DemoState = { schema: 1, attempts: [], reducedMotion: false };
 export const STORAGE_KEY = 'tpplay-demo-v1';
@@ -62,5 +63,14 @@ export function parseDemoState(value: string): DemoState {
         attempt.iva.drafts[index] = fields;
       }
     }
+  for (const attempt of parsed.attempts) if (attempt.greenhouse) {
+    if (attempt.missionSlug !== 'rescate-invernadero' || attempt.greenhouse.version !== 1 || !attempt.greenhouse.drafts || typeof attempt.greenhouse.drafts !== 'object' || Array.isArray(attempt.greenhouse.drafts)) throw Error('Bitácora incompatible');
+    for(const [index, raw] of Object.entries(attempt.greenhouse.drafts)) {
+      if(!/^[0-2]$/.test(index) || Number(index)>attempt.index) throw Error('Ronda de campo incompatible');
+      const fields=validateFieldDraft(Number(index),raw), answer=greenhouseAnswer(Number(index),fields);
+      if(attempt.confirmed[Number(index)]&&!answer) throw Error('Ronda de campo incompleta');
+      attempt.answers[Number(index)]=answer;attempt.greenhouse.drafts[index]=fields;
+    }
+  }
   return { schema: 1, attempts: parsed.attempts, reducedMotion: parsed.reducedMotion === true };
 }

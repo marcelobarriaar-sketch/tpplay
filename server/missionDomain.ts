@@ -1,3 +1,7 @@
+import {
+  applyGreenhouse,
+  greenhouseAnswer,
+} from "../src/games/invernadero/domain.js";
 import { applyIva, ivaAnswer } from "../src/games/iva/domain.js";
 import {
   applyManagement,
@@ -55,6 +59,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   demand(
     event &&
       [
+        "greenhouse",
         "iva",
         "manage",
         "continueEvidence",
@@ -67,6 +72,13 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
         "complete",
       ].includes(event.type),
   );
+  if (event.type === "greenhouse") {
+    try {
+      return applyGreenhouse(previous, JSON.parse(text(event.value, 1200)));
+    } catch (error) {
+      demand(false, (error as Error).message);
+    }
+  }
   if (event.type === "iva") {
     try {
       return applyIva(previous, JSON.parse(text(event.value, 1200)));
@@ -105,7 +117,7 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
   const step = m.steps[a.index];
   if (event.type === "answer") {
     demand(
-      !a.management?.drafts[a.index] && !a.iva,
+      !a.management?.drafts[a.index] && !a.iva && !a.greenhouse,
       "Utiliza la mesa de gestión de esta etapa.",
     );
     demand(step && !a.confirmed[a.index]);
@@ -118,6 +130,13 @@ export function reduceMission(previous: Attempt, event: MissionEvent): Attempt {
     a.answers[a.index] = value;
   }
   if (event.type === "confirm") {
+    if (a.greenhouse?.drafts[a.index])
+      demand(
+        greenhouseAnswer(a.index, a.greenhouse.drafts[a.index]) !== "" &&
+          greenhouseAnswer(a.index, a.greenhouse.drafts[a.index]) ===
+            a.answers[a.index],
+        "Completa la ronda de campo antes de confirmarla.",
+      );
     if (a.iva?.drafts[a.index])
       demand(
         ivaAnswer(a.index, a.iva.drafts[a.index]) !== "" &&
@@ -228,7 +247,16 @@ export function importAttempt(raw: unknown, id: string): Attempt {
       }
       break;
     }
-    if (v.iva?.drafts?.[i]) {
+    if (v.greenhouse?.drafts?.[i]) {
+      demand(m.slug === "rescate-invernadero" && v.greenhouse.version === 1);
+      state = reduceMission(state, {
+        type: "greenhouse",
+        value: JSON.stringify({
+          action: "save",
+          fields: v.greenhouse.drafts[i],
+        }),
+      });
+    } else if (v.iva?.drafts?.[i]) {
       demand(m.slug === "mision-iva" && v.iva.version === 1);
       state = reduceMission(state, {
         type: "iva",

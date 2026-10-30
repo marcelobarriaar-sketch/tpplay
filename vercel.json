@@ -133,6 +133,14 @@
       "destination": "/recursos/sii-verificacion-actividad/index.html"
     },
     {
+      "source": "/recursos/cultivo-vegetales-mineduc",
+      "destination": "/recursos/cultivo-vegetales-mineduc/index.html"
+    },
+    {
+      "source": "/recursos/invernaderos-sur-uach",
+      "destination": "/recursos/invernaderos-sur-uach/index.html"
+    },
+    {
       "source": "/((?!api/|assets/|images/|favicon.svg|robots.txt|sitemap.xml).*)",
       "destination": "/app.html"
     }
